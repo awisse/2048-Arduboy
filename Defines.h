@@ -8,5 +8,6 @@
 #define TRUE 1
 #define FALSE 0
 #define PROGMEM
+#include <avr/pgmspace.h>
 // Positions
 

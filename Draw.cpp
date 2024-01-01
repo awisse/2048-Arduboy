@@ -1,9 +1,12 @@
 /* Helper functions to unclutter main file
  */
 #include "Draw.h"
+#include "Defines.h"
 
-
+const uint8_t bmp_numbers[16][32] PROGMEM = 
+{
 #include "Numbers.h"
+};
 
 void EraseRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
   FillRect(x, y, w, h, 0);
