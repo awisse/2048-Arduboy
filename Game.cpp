@@ -8,8 +8,6 @@ Helper functions to unclutter main file
 GameStateStruct GameState;
 uint16_t board[DIM][DIM];
 
-void MoveRight();
-void MoveLeft();
 void MoveHorizontal(int dir);
 void MoveUp();
 void MoveDown();
@@ -91,10 +89,10 @@ void ExecuteMove(uint8_t direction) {
   EraseRect(98, 8, 29, 8);
   switch (direction) {
     case INPUT_LEFT: 
-      MoveLeft();
+      MoveHorizontal(LEFT);
       break;
     case INPUT_RIGHT: 
-      MoveRight();
+      MoveHorizontal(RIGHT);
       break;
     case INPUT_UP: 
       DrawStringAt(98, 8, "Up");
@@ -109,81 +107,26 @@ void ExecuteMove(uint8_t direction) {
   NewPiece();
 }
 
-void MoveRight() {
-  // All pieces to the right. Additions if possible.
-  // Reminder: [x-axis][y-axis]
-  uint8_t i, j;
-  int k;
-  // We go row by row
-  for (j=0; j<DIM; j++) {
-    // Shift everything to the right
-    for (i=DIM-1; i>0; i--) {
-      if (board[i][j] == 0) {
-        for (k=i-1; k>=0; k--) {
-          if (board[k][j]) {
-            board[i][j] = board[k][j];
-            board[k][j] = 0;
-            GameState.modified = true;
-            break;
-          }
-        }
-      } 
-      if (board[i][j]) {
-        for (k=i-1; (k >= 0) && (board[k][j] == 0); k--);
-        if (board[k][j] == board[i][j]) {
-          board[i][j]++;
-          board[k][j] = 0;
-          GameState.score += board[i][j];
-          GameState.modified = true;
-        }      
-      }
-    }
-  }
-}
-
-void MoveLeft() {
-  // All pieces to the left. Additions if possible.
-  // Reminder: [x-axis][y-axis]
-  uint8_t i, j;
-  int k;
-  // We go row by row
-  for (j=0; j<DIM; j++) {
-    // Shift everything to the left
-    for (i=0; i<DIM-1; i++) {
-      if (board[i][j] == 0) {
-        for (k=i+1; k<DIM; k++) {
-          if (board[k][j]) {
-            board[i][j] = board[k][j];
-            board[k][j] = 0;
-            GameState.modified = true;
-            break;
-          }
-        }
-      } 
-      if (board[i][j]) {
-        for (k=i+1; (k < DIM) && (board[k][j] == 0); k++);
-        if (board[k][j] == board[i][j]) {
-          board[i][j]++;
-          board[k][j] = 0;
-          GameState.score += board[i][j];
-          GameState.modified = true;
-        }      
-      }
-    }
-  }
-}
-
 void MoveHorizontal(int dir) {
   // Move tiles horizontally
   // Reminder: [x-axis][y-axis]
-  // TODO: Not done.
-  int i, j, k;
-  // We go row by row
+  int i, j, k;  // Loop variables
+  int from, to; // Loop limits
+
+  if (dir == LEFT) {
+    from = 0;
+    to = DIM - 1;
+  } else {
+    from = DIM - 1;
+    to = 0;
+  }
+
+  // Row by row
   for (j=0; j<DIM; j++) {
-    // Shift everything to the left
-    for (i=0; i<DIM-1; i+=dir) {
+    // Shift everything to the "dir"
+    for (i=from; dir*i<to; i+=dir) {
       if (board[i][j] == 0) {
-        for (k=i+dir; k<DIM; k+=dir) {
+        for (k=i+dir; dir*k<=dir*to; k+=dir) {
           if (board[k][j]) {
             board[i][j] = board[k][j];
             board[k][j] = 0;
@@ -193,7 +136,7 @@ void MoveHorizontal(int dir) {
         }
       } 
       if (board[i][j]) {
-        for (k=i+1; (k < DIM) && (board[k][j] == 0); k++);
+        for (k=i+dir; (dir*k < dir*to) && (board[k][j] == 0); k+=dir);
         if (board[k][j] == board[i][j]) {
           board[i][j]++;
           board[k][j] = 0;

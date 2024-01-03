@@ -42,12 +42,14 @@ void DrawGameState() {
 void DrawScore() {  
 }
 
-void MsgBox(char* msg) {
+uint8_t MsgBox(char* msg, uint8_t buttons) {
   /* A modal message box 
    * 1. Centered in the screen. 
    * 2. Up to two lines.
    * 3. Computes its own dimension.
-   * 4. Dismissed with the A button */
+   * 4. Displays one or more buttons.
+   * 5. Returns the button pressed.
+   */
 
 }
 

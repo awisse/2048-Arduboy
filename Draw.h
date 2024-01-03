@@ -23,7 +23,7 @@ void DrawMap();
 void DrawGrid();
 void DrawGameState();
 void DrawScore();
-void MsgBox(char* msg);
+uint8_t MsgBox(char* msg, uint8_t buttons);
 void DrawGameOver();
 void DrawStringAt(int16_t x, int16_t y, char* msg);
 void DrawCoordinates(uint8_t x, uint8_t y);

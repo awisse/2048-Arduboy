@@ -18,8 +18,6 @@ typedef struct {
   uint8_t moving; // If nonzero, indicates moving direction.
   } GameStateStruct;
 
-
-
 extern GameStateStruct GameState;
 
 int Random(int min, int max);
