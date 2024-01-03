@@ -63,7 +63,7 @@ void DrawGameOver() {
   DrawStringAt(36, 28, "GAME OVER");
 }
 
-void DrawStringAt(int16_t x, int16_t y, char* msg) {
+void DrawStringAt(int16_t x, int16_t y, const char* msg) {
   SetCursor(x, y);
   DrawString(msg);
 }

@@ -8,9 +8,7 @@ Helper functions to unclutter main file
 GameStateStruct GameState;
 uint16_t board[DIM][DIM];
 
-void MoveHorizontal(int dir);
-void MoveUp();
-void MoveDown();
+void MoveTiles(int direction);
 
 void NewGame() {
   
@@ -84,73 +82,75 @@ void NewPiece() {
 
 }
 
-void ExecuteMove(uint8_t direction) {
+void ExecuteMove(int direction) {
 
-  EraseRect(98, 8, 29, 8);
-  switch (direction) {
-    case INPUT_LEFT: 
-      MoveHorizontal(LEFT);
-      break;
-    case INPUT_RIGHT: 
-      MoveHorizontal(RIGHT);
-      break;
-    case INPUT_UP: 
-      DrawStringAt(98, 8, "Up");
-      break;
-    case INPUT_DOWN: 
-      DrawStringAt(98, 8, "Down");
-      break;
-    default:
-      DrawStringAt(98, 8, "Other");
-      return;
+  if (!(direction & (INPUT_LEFT | INPUT_RIGHT | INPUT_UP | INPUT_DOWN))) {
+    EraseRect(98, 8, 29, 8);
+    DrawStringAt(98, 8, "BOOM!");
+    return;
   }
+  MoveTiles(direction);
   NewPiece();
 }
 
-void MoveHorizontal(int dir) {
-  // Move tiles horizontally
-  // Reminder: [x-axis][y-axis]
+// Define two functions to access the values of the board.
+// boardv inverts the indices for the algorithm to apply 
+// in the vertical direction. 
+uint16_t* boardv(int x, int y) {
+  return &board[y][x];
+}
+// boardh(i, j) returns the address of the value of board[i][j]
+uint16_t* boardh(int x, int y) {
+  return &board[x][y];
+}
+
+void MoveTiles(int direction) { // Universal move in all directions
+  // Move tiles in any direction
+  // Reminder: board[x-axis][y-axis]
   int i, j, k;  // Loop variables
   int from, to; // Loop limits
+  int dir;      // Sign 
+  uint16_t* (*Board)(int, int); // Access function
 
-  if (dir == LEFT) {
+
+  // Depending of the direction chosen by the user, configure the 
+  // algorithm correspondingly
+  if ((direction == INPUT_UP) || (direction == INPUT_LEFT)) {
     from = 0;
     to = DIM - 1;
+    dir = 1;
   } else {
     from = DIM - 1;
     to = 0;
+    dir = -1;
+  }
+  if ((direction == INPUT_UP) || (direction == INPUT_DOWN)) {
+    Board = boardv;
+  } else {
+    Board = boardh;
   }
 
-  // Row by row
+  // Row by row for horizontal, column by column for vertical
   for (j=0; j<DIM; j++) {
     // Shift everything to the "dir"
     for (i=from; dir*i<to; i+=dir) {
-      if (board[i][j] == 0) {
+      if (*Board(i,j) == 0) {
         for (k=i+dir; dir*k<=dir*to; k+=dir) {
-          if (board[k][j]) {
-            board[i][j] = board[k][j];
-            board[k][j] = 0;
-            GameState.modified = true;
+          if (*Board(k,j)) {
+            *Board(i,j) = *Board(k,j);
+            *Board(k,j) = 0;
             break;
           }
         }
-      } 
-      if (board[i][j]) {
-        for (k=i+dir; (dir*k < dir*to) && (board[k][j] == 0); k+=dir);
-        if (board[k][j] == board[i][j]) {
-          board[i][j]++;
-          board[k][j] = 0;
-          GameState.score += board[i][j];
-          GameState.modified = true;
-        }      
+      }
+      if (*Board(i,j)) {
+        for (k=i+dir; (dir*k<dir*to) && (*Board(k,j) == 0); k+=dir);
+        if (*Board(k,j) == *Board(i,j)) {
+          (*Board(i,j))++;
+          *Board(k,j) = 0;
+        }
       }
     }
   }
-}
-
-void MoveUp() {
-}
-
-void MoveDown() {
 }
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=arduino

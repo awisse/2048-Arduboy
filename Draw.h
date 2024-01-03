@@ -13,7 +13,7 @@ void DrawCircle(int16_t x0, int16_t y0, uint8_t r);
 void FillCircle(int16_t x0, int16_t y0, uint8_t r, uint8_t color);
 void FillScreen(uint8_t color);
 void SetCursor(int16_t x, int16_t y);
-void DrawString(char* msg);
+void DrawString(const char* msg);
 void DrawInt(int value);
 
 // Game functions
@@ -25,6 +25,6 @@ void DrawGameState();
 void DrawScore();
 uint8_t MsgBox(char* msg, uint8_t buttons);
 void DrawGameOver();
-void DrawStringAt(int16_t x, int16_t y, char* msg);
+void DrawStringAt(int16_t x, int16_t y, const char* msg);
 void DrawCoordinates(uint8_t x, uint8_t y);
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=arduino

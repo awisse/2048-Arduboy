@@ -3,11 +3,6 @@
 #include <stdint.h>
 #include "Defines.h"
 
-#define LEFT 1
-#define RIGHT -1
-#define UP 1
-#define DOWN -1
-
 // Global variables
 extern uint16_t board[DIM][DIM]; // [x-axis(h)][y-axis(v)]
 typedef struct {
@@ -26,6 +21,6 @@ void NewGame();
 void StepGame();
 
 void NewPiece();
-void ExecuteMove(uint8_t direction);
+void ExecuteMove(int direction);
 
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=arduino

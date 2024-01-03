@@ -1,7 +1,7 @@
 #pragma once
 
 #define DEBUG
-#define DIM 4u
+#define DIM 4
 #define PLACES DIM * DIM
 // Board position on the screen
 #define BOARD_X 32

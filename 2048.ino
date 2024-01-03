@@ -73,7 +73,7 @@ void SetCursor(int16_t x, int16_t y) {
   arduboy.setCursor(x, y);
 }
 
-void DrawString(char* msg) {
+void DrawString(const char* msg) {
   arduboy.print(msg);
 }
 
