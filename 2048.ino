@@ -85,5 +85,8 @@ void DrawInt(int value) {
 int Random(int min, int max) {
   return random(min, max);
 }
+unsigned long Millis() {
+  return millis();
+}
 
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab

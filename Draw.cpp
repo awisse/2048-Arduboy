@@ -3,7 +3,7 @@
 #include "Defines.h"
 #include "Draw.h"
 #include "Game.h"
-#include "Tiles.h"
+#include "HexDigits.h"
 
 #define ERASE_BOARD() EraseRect(BOARD_X, BOARD_Y, TILE_SZ * DIM, TILE_SZ * DIM)
 
@@ -21,7 +21,7 @@ void DrawMap() {
 
   for (i = 0; i < PLACES; i++) {
     if ((value = board[i >> 2][i & 3])) {
-      DrawBitmap(bmp_numbers[value], 32 + ((i << 2) & 0x30), (i << 4) & 0x30, 
+      DrawBitmap(hex_digits[value], 32 + ((i << 2) & 0x30), (i << 4) & 0x30, 
                  16, 16, 1);
     }
   }

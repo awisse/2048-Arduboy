@@ -11,11 +11,14 @@ typedef struct {
   unsigned int score;      // Current score of game. 
   unsigned int biggest;    // Biggest number reached.
   uint8_t moving; // If nonzero, indicates moving direction.
+  unsigned long start;
   } GameStateStruct;
 
 extern GameStateStruct GameState;
 
+// Map Arduino functions
 int Random(int min, int max);
+unsigned long Millis();
 
 void NewGame();
 void StepGame();

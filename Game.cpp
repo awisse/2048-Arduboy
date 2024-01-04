@@ -1,5 +1,5 @@
 /* 
-Helper functions to unclutter main file
+Helper functions to unclutter main .ino file
  */
 #include "Game.h"
 #include "Draw.h"
@@ -9,6 +9,7 @@ GameStateStruct GameState;
 uint16_t board[DIM][DIM];
 
 void MoveTiles(int direction);
+void GameOver();
 
 void NewGame() {
   
@@ -20,6 +21,7 @@ void NewGame() {
   GameState.modified = false;
   GameState.biggest = 0;
   GameState.moving = false;
+  GameState.start = Millis();
   
   ClearScreen();
   NewPiece();
@@ -32,7 +34,8 @@ void StepGame() {
 
   if (GameState.moving) {
     //Future animation
-  } else {// No buttons accepted during move
+    // No buttons accepted during move
+  } else {
     buttons = GetButtons();
 #ifdef DEBUG
     // EraseRect(98, 8, 29, 8);  
@@ -46,11 +49,20 @@ void StepGame() {
     DrawMap();
   }
 
+  if (GameState.biggest == MAX_VALUE) {
+    GameOver();
+    /* TODO: This **has to be improved**. 
+     * Very frustrating to be kicked out after
+     * having reached MAX_VALUE without reward */
+  } else if (GameState.biggest == TARGET_VALUE) {
+    // TODO: Big Reward !!!
+  }
   DrawGameState();    
 }
 
 void GameOver() {
   GameState.running = false;
+  // TODO: Save Game State: High Score, biggest, time.
   DrawGameOver();
   // Later: Save high score, etc.
 }
@@ -147,6 +159,7 @@ void MoveTiles(int direction) { // Universal move in all directions
         for (k=i+dir; (dir*k<dir*to) && (*Board(k,j) == 0); k+=dir);
         if (*Board(k,j) == *Board(i,j)) {
           (*Board(i,j))++;
+          GameState.biggest = *Board(i,j);
           *Board(k,j) = 0;
         }
       }
