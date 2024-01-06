@@ -68,12 +68,4 @@ void DrawStringAt(int16_t x, int16_t y, const char* msg) {
   DrawString(msg);
 }
 
-void DrawCoordinates(uint8_t x, uint8_t y) {
-  EraseRect(98, 8, 29, 8);
-  DrawStringAt(100, 8, "(");
-  DrawInt(x);
-  DrawString(",");
-  DrawInt(y);
-  DrawString(")");
-}
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=arduino

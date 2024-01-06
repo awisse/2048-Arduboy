@@ -97,6 +97,7 @@ void NewPiece() {
 void ExecuteMove(int direction) {
 
   if (!(direction & (INPUT_LEFT | INPUT_RIGHT | INPUT_UP | INPUT_DOWN))) {
+    // This can't happen if event dispatched by controller
     EraseRect(98, 8, 29, 8);
     DrawStringAt(98, 8, "BOOM!");
     return;

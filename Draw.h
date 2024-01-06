@@ -26,5 +26,4 @@ void DrawScore();
 uint8_t MsgBox(char* msg, uint8_t buttons);
 void DrawGameOver();
 void DrawStringAt(int16_t x, int16_t y, const char* msg);
-void DrawCoordinates(uint8_t x, uint8_t y);
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=arduino
