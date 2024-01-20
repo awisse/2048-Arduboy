@@ -28,6 +28,8 @@ void NewGame() {
   NewPiece();
   SetCursor(100, 0);
   DrawString("Score");
+  SetCursor(100, 24);
+  DrawString("Max");
 }
 
 void StepGame() {
@@ -49,7 +51,7 @@ void StepGame() {
 
   if (GameState.modified) {
     DrawMap();
-    DrawScore(GameState.score);
+    DrawScore(GameState.score, GameState.biggest);
   }
 
   if (GameState.biggest == MAX_VALUE) {
@@ -123,6 +125,7 @@ uint16_t* boardh(int x, int y) {
 void MoveTiles(int direction) { // Universal move in all directions
   // Move tiles in any direction
   // Reminder: board[x-axis][y-axis]
+  int sum;
   int i, j, k;  // Loop variables
   int from, to; // Loop limits
   int dir;      // Sign 
@@ -162,9 +165,11 @@ void MoveTiles(int direction) { // Universal move in all directions
       if (*Board(i,j)) {
         for (k=i+dir; (dir*k<dir*to) && (*Board(k,j) == 0); k+=dir);
         if (*Board(k,j) == *Board(i,j)) {
-          (*Board(i,j))++;
-          GameState.biggest = *Board(i,j);
-          GameState.score += 1 << *Board(i,j);
+          sum = 1 << ++(*Board(i,j));
+          if (sum > GameState.biggest) {
+            GameState.biggest = sum;
+          }
+          GameState.score += sum;
           *Board(k,j) = 0;
         }
       }

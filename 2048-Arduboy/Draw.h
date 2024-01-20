@@ -22,7 +22,7 @@ void EraseRect(int16_t x, int16_t y, uint8_t w, uint8_t h);
 void DrawMap();
 void DrawGrid();
 void DrawGameState();
-void DrawScore(int score);
+void DrawScore(int score, int biggest);
 uint8_t MsgBox(char* msg, uint8_t buttons);
 void DrawGameOver();
 void DrawStringAt(int16_t x, int16_t y, const char* msg);

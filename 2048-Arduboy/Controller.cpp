@@ -4,7 +4,8 @@
 void HandleEvent(uint8_t buttons) {
 
   if (buttons & INPUT_A) {
-    NewPiece();
+    // For debugging only
+    // NewPiece();
   }
 
   if (buttons & INPUT_B) {
