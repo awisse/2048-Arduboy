@@ -2,8 +2,10 @@
 #include "Controller.h"
 #include "Game.h"
 #include "Draw.h"
+#include <Font4x6.h>
 
-Arduboy2 arduboy;
+Arduboy2Base arduboy;
+Font4x6  font;
 
 void setup() {
   // put your setup code here, to run once:
@@ -70,15 +72,15 @@ void FillScreen(uint8_t color) {
 }
 
 void SetCursor(int16_t x, int16_t y) {
-  arduboy.setCursor(x, y);
+  font.setCursor(x, y);
 }
 
 void DrawString(const char* msg) {
-  arduboy.print(msg);
+  font.print(msg);
 }
 
 void DrawInt(int value) {
-  arduboy.print(value);
+  font.print(value);
 }
 
 // From game.h

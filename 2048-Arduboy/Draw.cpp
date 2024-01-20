@@ -39,7 +39,10 @@ void DrawGameState() {
   }
 }
 
-void DrawScore() {  
+void DrawScore(int score) {  
+  EraseRect(100, 8, 27, 8);
+  SetCursor(100, 8);
+  DrawInt(score);
 }
 
 uint8_t MsgBox(char* msg, uint8_t buttons) {

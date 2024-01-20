@@ -26,6 +26,8 @@ void NewGame() {
   ClearScreen();
   NewPiece();
   NewPiece();
+  SetCursor(100, 0);
+  DrawString("Score");
 }
 
 void StepGame() {
@@ -47,6 +49,7 @@ void StepGame() {
 
   if (GameState.modified) {
     DrawMap();
+    DrawScore(GameState.score);
   }
 
   if (GameState.biggest == MAX_VALUE) {
@@ -161,6 +164,7 @@ void MoveTiles(int direction) { // Universal move in all directions
         if (*Board(k,j) == *Board(i,j)) {
           (*Board(i,j))++;
           GameState.biggest = *Board(i,j);
+          GameState.score += 1 << *Board(i,j);
           *Board(k,j) = 0;
         }
       }
