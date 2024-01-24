@@ -6,6 +6,9 @@
 
 Arduboy2Base arduboy;
 Font4x6  font;
+#ifdef DEBUG
+static int i;
+#endif
 
 void setup() {
   // put your setup code here, to run once:
@@ -16,7 +19,12 @@ void setup() {
   while (!arduboy.pressed(A_BUTTON)) {
     arduboy.idle();
   }
-  
+
+  #ifdef DEBUG
+  Serial.begin(9600);
+  i = 0;
+  #endif
+
   // We need the delay before the first button press for a good seed
   arduboy.initRandomSeed();
   NewGame();
@@ -44,7 +52,7 @@ void Delay(uint16_t milliseconds) {
 // Mapped Arduboy Functions
 void DrawBitmap(const uint8_t* bitmap,  int16_t x, int16_t y, uint8_t w,
                 uint8_t h, uint8_t color) {
-  arduboy.drawBitmap(x, y, bitmap, w, h, WHITE);
+  arduboy.drawBitmap(x, y, bitmap, w, h, color);
 }
 
 void DrawRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
@@ -82,6 +90,16 @@ void DrawString(const char* msg) {
 void DrawInt(int value) {
   font.print(value);
 }
+
+#ifdef DEBUG
+void DebugPrint(uint16_t value) {
+  Serial.print(value, HEX);
+  Serial.print(":");
+  if (++i % 4 == 0) {
+    Serial.println(" =");
+  }
+}
+#endif
 
 // From game.h
 int Random(int min, int max) {

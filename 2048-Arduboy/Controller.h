@@ -1,5 +1,5 @@
 #pragma once
-/* 
+/*
  * Manage User Interactions
  * Dispatch Events
  */

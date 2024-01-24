@@ -15,7 +15,7 @@ void HandleEvent(uint8_t buttons) {
   if (buttons & (INPUT_UP | INPUT_DOWN | INPUT_LEFT | INPUT_RIGHT)) {
     ExecuteMove(buttons);
   }
-  
+
 }
 
 uint8_t GetButtons() {
@@ -33,6 +33,6 @@ uint8_t GetButtons() {
 
   buttonDown = true;
   return buttons;
-  
+
 }
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=arduino

@@ -1,8 +1,6 @@
 /* Helper functions to unclutter main file
  */
-#include "Defines.h"
 #include "Draw.h"
-#include "Game.h"
 #include "HexDigits.h"
 
 #define ERASE_BOARD() EraseRect(BOARD_X, BOARD_Y, TILE_SZ * DIM, TILE_SZ * DIM)
@@ -10,28 +8,46 @@
 void ClearScreen() {
   FillScreen(_BLACK);
 }
+
 void EraseRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
-  FillRect(x, y, w, h, 0);
+  FillRect(x, y, w, h, _BLACK);
 }
 
-void DrawMap() {
+void DrawMap(uint16_t board[DIM][DIM]) {
   int16_t i, value;
+  uint8_t color; // For flashing
   // Draw 4x4 map of numbers in board.
   ERASE_BOARD();
 
   for (i = 0; i < PLACES; i++) {
     if ((value = board[i >> 2][i & 3])) {
-      DrawBitmap(hex_digits[value], 32 + ((i << 2) & 0x30), (i << 4) & 0x30, 
-                 16, 16, 1);
+      value &= 0x7FFF;
+      DrawBitmap(hex_digits[value], 32 + ((i << 2) & 0x30), (i << 4) & 0x30,
+                 16, 16, _WHITE);
     }
   }
-  // DrawGrid();
-  GameState.modified = false;
 }
 
-void DrawGameState() {
+void Flash(uint16_t board[DIM][DIM]) {
+  // Flash Squares with highest bit set
+  uint16_t value;
+  int i;
+  for (i = 0; i < PLACES; i++) {
+    value = board[i >> 2][i & 3];
+#ifdef DEBUG
+    DebugPrint(value);
+#endif
+    if (value & 0x8000 ) {
+      //*value &= 0x7FFF;
+      DrawBitmap(white_square, 32 + ((i << 2) & 0x30), (i << 4) & 0x30,
+                 16, 16, _INVERT);
+    }
+  }
+}
+
+void DrawGameState(bool running) {
     // For testing: Whether "running" is true
-  if (GameState.running) {
+  if (running) {
     FillCircle(14, 30, 4, _WHITE);
   } else {
     FillCircle(14, 30, 4, _BLACK);
@@ -39,7 +55,7 @@ void DrawGameState() {
   }
 }
 
-void DrawScore(int score, int biggest) {  
+void DrawScore(int score, int biggest) {
   EraseRect(100, 8, 27, 8);
   SetCursor(100, 8);
   DrawInt(score);
@@ -50,8 +66,8 @@ void DrawScore(int score, int biggest) {
 }
 
 uint8_t MsgBox(char* msg, uint8_t buttons) {
-  /* A modal message box 
-   * 1. Centered in the screen. 
+  /* A modal message box
+   * 1. Centered in the screen.
    * 2. Up to two lines.
    * 3. Computes its own dimension.
    * 4. Displays one or more buttons.

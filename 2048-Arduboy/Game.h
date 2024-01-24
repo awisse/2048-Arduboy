@@ -5,10 +5,11 @@
 
 // Global variables
 extern uint16_t board[DIM][DIM]; // [x-axis(h)][y-axis(v)]
+
 typedef struct {
   bool running;   // true if running, false if not.
   bool modified;  // true after board is modified. For refresh.
-  unsigned int score;      // Current score of game. 
+  unsigned int score;      // Current score of game.
   unsigned int biggest;    // Biggest number reached.
   uint8_t moving; // If nonzero, indicates moving direction.
   unsigned long start;
@@ -22,6 +23,7 @@ unsigned long Millis();
 
 void NewGame();
 void StepGame();
+void Logic();
 
 void NewPiece();
 void ExecuteMove(int direction);

@@ -1,6 +1,6 @@
 #pragma once
 
-#define DEBUG
+//#define DEBUG
 #define DIM 4
 // Maximal value: 1 << 0xD
 #define MAX_VALUE 0XD
@@ -17,5 +17,7 @@
 #define _BLACK 0
 #define _WHITE 1
 #define _INVERT 2
+// Tile flashing duration in number of frames
+#define FLASH_FRAMES 4
 
 
