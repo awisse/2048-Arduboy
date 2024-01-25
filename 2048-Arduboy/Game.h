@@ -3,9 +3,6 @@
 #include <stdint.h>
 #include "Defines.h"
 
-// Global variables
-extern uint16_t board[DIM][DIM]; // [x-axis(h)][y-axis(v)]
-
 typedef struct {
   bool running;   // true if running, false if not.
   bool modified;  // true after board is modified. For refresh.
@@ -14,8 +11,6 @@ typedef struct {
   uint8_t moving; // If nonzero, indicates moving direction.
   unsigned long start;
   } GameStateStruct;
-
-extern GameStateStruct GameState;
 
 // Map Arduino functions
 int Random(int min, int max);

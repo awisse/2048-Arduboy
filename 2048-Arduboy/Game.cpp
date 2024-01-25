@@ -5,8 +5,8 @@ Helper functions to unclutter main .ino file
 #include "Draw.h"
 #include "Controller.h"
 
-GameStateStruct GameState;
 uint16_t board[DIM][DIM];
+GameStateStruct GameState;
 static int16_t flash;
 
 void MoveTiles(int direction);
