@@ -5,8 +5,16 @@
 
 #define ERASE_BOARD() EraseRect(BOARD_X, BOARD_Y, TILE_SZ * DIM, TILE_SZ * DIM)
 
-void ClearScreen() {
+void InitScreen() {
+
   FillScreen(_BLACK);
+
+  SetCursor(SCORE_X, SCORE_Y);
+  DrawString("Score");
+  SetCursor(SCORE_X, HIGHSCORE_Y);
+  DrawString("HiSco");
+  SetCursor(SCORE_X, MAX_Y);
+  DrawString("Max");
 }
 
 void EraseRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
@@ -34,9 +42,6 @@ void Flash(uint16_t board[DIM][DIM]) {
   int i;
   for (i = 0; i < PLACES; i++) {
     value = board[i >> 2][i & 3];
-#ifdef DEBUG
-    DebugPrint(value);
-#endif
     if (value & 0x8000 ) {
       //*value &= 0x7FFF;
       DrawBitmap(white_square, 32 + ((i << 2) & 0x30), (i << 4) & 0x30,
@@ -55,13 +60,18 @@ void DrawGameState(bool running) {
   }
 }
 
-void DrawScore(int score, int biggest) {
-  EraseRect(100, 8, 27, 8);
-  SetCursor(100, 8);
-  DrawInt(score);
-  EraseRect(100, 32, 27, 8);
-  SetCursor(100, 32);
-  DrawInt(biggest);
+void DrawScore(unsigned int score, unsigned int highscore, unsigned int biggest) {
+  EraseRect(SCORE_X, SCORE_Y + FONT_STEP, SCREEN_WIDTH - SCORE_X, FONT_STEP);
+  SetCursor(SCORE_X, SCORE_Y + FONT_STEP);
+  DrawUInt(score);
+
+  EraseRect(SCORE_X, HIGHSCORE_Y + FONT_STEP, SCREEN_WIDTH - SCORE_X, FONT_STEP);
+  SetCursor(SCORE_X, HIGHSCORE_Y + FONT_STEP);
+  DrawUInt(highscore);
+
+  EraseRect(SCORE_X, MAX_Y + FONT_STEP, SCREEN_WIDTH - SCORE_X, FONT_STEP);
+  SetCursor(SCORE_X, MAX_Y + FONT_STEP);
+  DrawUInt(biggest);
 
 }
 
@@ -78,10 +88,10 @@ uint8_t MsgBox(char* msg, uint8_t buttons) {
 
 void DrawGameOver() {
   // EraseRect area
-  EraseRect(30, 20, 69, 24);
+  EraseRect(29, 20, 69, 24);
   // Draw double border
-  DrawRect(30, 20, 69, 24);
-  DrawRect(29, 19, 71, 26);
+  DrawRect(29, 20, 69, 24);
+  DrawRect(28, 19, 71, 26);
   // Write "Game Over"
   DrawStringAt(36, 28, "GAME OVER");
 }

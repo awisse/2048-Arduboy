@@ -1,8 +1,14 @@
 #include <Arduboy2.h>
+#include <EEPROM.h>
+#include <Font4x6.h>
 #include "Controller.h"
 #include "Game.h"
 #include "Draw.h"
-#include <Font4x6.h>
+#include "Defines.h"
+
+#ifdef DEBUG
+#include "debug.h"
+#endif
 
 Arduboy2Base arduboy;
 Font4x6  font;
@@ -27,27 +33,31 @@ void setup() {
 
   // We need the delay before the first button press for a good seed
   arduboy.initRandomSeed();
-  NewGame();
+  InitGame();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   // pause render until it's time for the next frame
   if (arduboy.nextFrame()) {
+    arduboy.pollButtons();
     StepGame();
     arduboy.display();
   }
 }
 
 // From Controller.h
-uint8_t _GetButtons() {
+bool JustPressed(uint8_t button) {
+  return arduboy.justPressed(button);
+}
+
+bool JustReleased(uint8_t button) {
+  return arduboy.justReleased(button);
+}
+
+uint8_t ButtonState() {
   return arduboy.buttonsState();
 }
-
-void Delay(uint16_t milliseconds) {
-  arduboy.delayShort(milliseconds);
-}
-
 // From Draw.h
 // Mapped Arduboy Functions
 void DrawBitmap(const uint8_t* bitmap,  int16_t x, int16_t y, uint8_t w,
@@ -91,6 +101,10 @@ void DrawInt(int value) {
   font.print(value);
 }
 
+void DrawUInt(unsigned int value) {
+  font.print(value);
+}
+
 #ifdef DEBUG
 void DebugPrint(uint16_t value) {
   Serial.print(value, HEX);
@@ -98,6 +112,12 @@ void DebugPrint(uint16_t value) {
   if (++i % 4 == 0) {
     Serial.println(" =");
   }
+}
+
+void DebugPrint(char* text) {
+  Serial.println(" =");
+  Serial.println(text);
+  i = 0;
 }
 #endif
 
@@ -107,6 +127,50 @@ int Random(int min, int max) {
 }
 unsigned long Millis() {
   return millis();
+}
+
+#define EEP(x) EEPROM[EEPROM_STORAGE_SPACE_START + x]
+
+uint8_t ToEEPROM(uint8_t *bytes, int offset, int length) {
+  int i;
+  if (offset < 0) {
+    return WrongOffset;
+  }
+  if (EEPROM_STORAGE_SPACE_START + 4 + offset + length > EEPROM.length()) {
+    return TooBig;
+  }
+  // Write Game to EEPROM
+  // Write signature of game
+  EEP(0) = '2';
+  EEP(1) = '0';
+  EEP(2) = '4';
+  EEP(3) = '8';
+
+  for (i = 0; i < length; i++) {
+    EEP(i + 4 + offset) = bytes[i];
+  }
+  return Saved;
+}
+
+uint8_t FromEEPROM(uint8_t *bytes, int offset, int length) {
+  // Get Game from EEPROM
+  int i = EEPROM_STORAGE_SPACE_START;
+  if (i + offset < 0) {
+    return WrongOffset;
+  }
+  if (i + 4 + offset + length > EEPROM.length()) {
+    return TooBig; // Can't read from here
+  }
+  // Read data from EEPROM. Return 1 if no game saved.
+  if (EEPROM[i++] != '2') return NotSaved;
+  if (EEPROM[i++] != '0') return NotSaved;
+  if (EEPROM[i++] != '4') return NotSaved;
+  if (EEPROM[i++] != '8') return NotSaved;
+
+  for (i = 0; i < length; i++) {
+    bytes[i] = EEP(i + 4 + offset);
+  }
+  return Saved;
 }
 
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab

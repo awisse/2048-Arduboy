@@ -16,17 +16,16 @@ void FillScreen(uint8_t color);
 void SetCursor(int16_t x, int16_t y);
 void DrawString(const char* msg);
 void DrawInt(int value);
-#ifdef DEBUG
-void DebugPrint(uint16_t value);
-#endif
+void DrawUInt(unsigned int value);
 
 // Game functions
-void ClearScreen();
+void InitScreen();
+void DrawLabels();
 void EraseRect(int16_t x, int16_t y, uint8_t w, uint8_t h);
 void DrawMap(uint16_t board[DIM][DIM]);
 void Flash(uint16_t board[DIM][DIM]);
 void DrawGameState(bool running);
-void DrawScore(int score, int biggest);
+void DrawScore(unsigned int score, unsigned int highscore, unsigned int biggest);
 uint8_t MsgBox(char* msg, uint8_t buttons);
 void DrawGameOver();
 void DrawStringAt(int16_t x, int16_t y, const char* msg);

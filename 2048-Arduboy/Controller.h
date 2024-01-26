@@ -9,12 +9,13 @@
 #define INPUT_DOWN 16u
 #define INPUT_A 8u
 #define INPUT_B 4u
+#define LONG_PRESS 2000
 
 #include <stdint.h>
 
-uint8_t _GetButtons();
-uint8_t GetButtons();
-void HandleEvent(uint8_t buttons);
-void Delay(uint16_t milliseconds);
+bool JustPressed(uint8_t button);
+bool JustReleased(uint8_t button);
+uint8_t ButtonState();
+void HandleEvent();
 
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=arduino

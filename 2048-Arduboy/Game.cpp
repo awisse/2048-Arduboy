@@ -9,54 +9,42 @@ uint16_t board[DIM][DIM];
 GameStateStruct GameState;
 static int16_t flash;
 
+void NewGame();
 void MoveTiles(int direction);
 void GameOver();
 void BoardMask(uint16_t mask);
 
-void NewGame() {
+void InitGame() {
+  uint8_t loadState = LoadGame();
 
-  BoardMask(0);
+  if ((loadState != Saved) || (!GameState.running)) {
+    NewGame();
+    return;
+  }
+
+  InitScreen();
   flash = 0;
-
-  GameState.score = 0;
-  GameState.running = true;
-  GameState.modified = false;
-  GameState.biggest = 0;
-  GameState.moving = false;
-  GameState.start = Millis();
-
-  ClearScreen();
-  NewPiece();
-  NewPiece();
-  SetCursor(100, 0);
-  DrawString("Score");
-  SetCursor(100, 24);
-  DrawString("Max");
 }
 
 void StepGame() {
-
-  uint8_t buttons;
 
   if (GameState.moving) {
     // Future animation
     // No buttons accepted during move
   } else {
-    buttons = GetButtons();
-#ifdef DEBUG
-    // EraseRect(98, 8, 29, 8);
-    // SetCursor(98,8);
-    // DrawInt(buttons);
-#endif
-    HandleEvent(buttons);
+    HandleEvent();
   }
 
   Logic();
 
   if (GameState.modified) {
     DrawMap(board);
-    DrawScore(GameState.score, GameState.biggest);
+    if (GameState.score > GameState.highScore) {
+      GameState.highScore = GameState.score;
+    }
+    DrawScore(GameState.score, GameState.highScore, GameState.biggest);
     GameState.modified = false;
+    GameState.saved = false;
   }
 
   if (GameState.biggest == MAX_VALUE) {
@@ -69,6 +57,23 @@ void StepGame() {
   }
   DrawGameState(GameState.running);
 
+}
+
+void NewGame() {
+
+  InitScreen();
+
+  BoardMask(0);
+  flash = 0;
+
+  GameState.score = 0;
+  GameState.running = true;
+  GameState.biggest = 0;
+  GameState.moving = false;
+  GameState.saved = true;
+
+  NewPiece();
+  NewPiece();
 }
 
 void Logic() {
@@ -85,9 +90,46 @@ void Logic() {
 
 void GameOver() {
   GameState.running = false;
-  // TODO: Save Game State: High Score, biggest, time.
+  SaveGame(); // Mainly to save highscore
   DrawGameOver();
   // Later: Save high score, etc.
+}
+
+void SaveGame() {
+
+  if (GameState.saved) {
+    return;
+  }
+  GameState.saved = true;
+  GameState.moving = false;
+
+  // Save GameState
+  if (ToEEPROM((uint8_t*)&GameState, 0, sizeof(GameState)) != Saved) {
+    return;
+  }
+  // Save Board
+  if (ToEEPROM((uint8_t*)board, sizeof(GameState), sizeof(board)) != Saved) {
+    return;
+  }
+}
+
+uint8_t LoadGame() {
+
+  unsigned int highScore = GameState.highScore;
+  uint8_t savedState = FromEEPROM((uint8_t*)&GameState, 0, sizeof(GameState));
+  if (savedState == Saved) {
+    savedState = FromEEPROM((uint8_t*)board, sizeof(GameState), sizeof(board));
+  }
+
+  GameState.saved = true;
+  GameState.modified = true;
+  // High Score is forever
+  if (highScore > GameState.highScore) {
+    GameState.highScore = highScore;
+  }
+
+  return savedState;
+
 }
 
 void NewPiece() {
@@ -204,5 +246,9 @@ void BoardMask(uint16_t mask) {
   for (i=0; i<PLACES; i++) {
     *(*board + i) &= mask;
   }
+}
+
+void ResetHighScore() {
+  GameState.highScore = 0;
 }
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=arduino
