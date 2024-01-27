@@ -1,17 +1,16 @@
 #include <Arduboy2.h>
 #include <EEPROM.h>
-#include <Font4x6.h>
 #include "Controller.h"
 #include "Game.h"
 #include "Draw.h"
 #include "Defines.h"
+#include "Platform.h"
 
 #ifdef DEBUG
 #include "debug.h"
 #endif
 
 Arduboy2Base arduboy;
-Font4x6  font;
 #ifdef DEBUG
 static int i;
 #endif
@@ -60,6 +59,12 @@ uint8_t ButtonState() {
 }
 // From Draw.h
 // Mapped Arduboy Functions
+
+void PutPixel(uint8_t x, uint8_t y, uint8_t colour)
+{
+  arduboy.drawPixel(x, y, colour);
+}
+
 void DrawBitmap(const uint8_t* bitmap,  int16_t x, int16_t y, uint8_t w,
                 uint8_t h, uint8_t color) {
   arduboy.drawBitmap(x, y, bitmap, w, h, color);
@@ -69,7 +74,7 @@ void DrawRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
   arduboy.drawRect(x, y, w, h, WHITE);
 }
 
-void FillRect(int16_t x, int16_t y, uint8_t w, uint8_t h, uint8_t color) {
+void DrawFilledRect(int16_t x, int16_t y, uint8_t w, uint8_t h, uint8_t color) {
   arduboy.fillRect(x, y, w, h, color);
 }
 
@@ -87,22 +92,6 @@ void FillCircle(int16_t x0, int16_t y0, uint8_t r, uint8_t color) {
 
 void FillScreen(uint8_t color) {
   arduboy.fillScreen(color);
-}
-
-void SetCursor(int16_t x, int16_t y) {
-  font.setCursor(x, y);
-}
-
-void DrawString(const char* msg) {
-  font.print(msg);
-}
-
-void DrawInt(int value) {
-  font.print(value);
-}
-
-void DrawUInt(unsigned int value) {
-  font.print(value);
 }
 
 #ifdef DEBUG
@@ -171,6 +160,11 @@ uint8_t FromEEPROM(uint8_t *bytes, int offset, int length) {
     bytes[i] = EEP(i + 4 + offset);
   }
   return Saved;
+}
+
+// From Platform.h
+static uint8_t* Platform::GetScreenBuffer() {
+  return arduboy.getBuffer();
 }
 
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab

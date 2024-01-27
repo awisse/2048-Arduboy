@@ -1,4 +1,3 @@
-#include <avr/pgmspace.h>
 #include "Defines.h"
 /* #include for PROGMEM
  * Sixteen 16x16 bitmaps: 0,1,...,E,F */
