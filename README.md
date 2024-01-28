@@ -1,12 +1,14 @@
 # Description
 
-This is a game that has many implementations. For the Arduboy, there is, for example https://github.com/akkera102/03_tiny_2048.
+This is a game that has many implementations. For the Arduboy, there is, for example [03_tiny_2048](https://github.com/akkera102/03_tiny_2048).
 
 My objective with this game is to learn 
 
 * Arduboy programming
 * Some C++
 * The Model-View-Controller framework.
+* Creating a parallel desktop version that replicates the Arduboy screen for
+  easier debugging. Inspired from [Arduboy3D](https://github.com/jhhoward/Arduboy3D).
 
 # Installation
 
