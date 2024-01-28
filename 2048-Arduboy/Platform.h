@@ -7,7 +7,7 @@ class Platform
 public:
 	/* static uint8_t GetInput(void); */
 	/* static void SetLED(uint8_t r, uint8_t g, uint8_t b); */
-	static uint8_t* GetScreenBuffer(); 
+	static uint8_t* GetScreenBuffer();
 
 	/* static void PlaySound(const uint16_t* audioPattern); */
 	/* static bool IsAudioEnabled(); */

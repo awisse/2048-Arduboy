@@ -9,7 +9,7 @@
 Font font;
 
 void DrawString(const char* text, uint8_t x, uint8_t line, uint8_t colour) {
-  font.PrintString(text, line, x, colour);  
+  font.PrintString(text, line, x, colour);
 }
 
 void DrawString(const char* text, uint8_t x, uint8_t line) {
@@ -29,7 +29,7 @@ void InitScreen() {
   FillScreen(COLOUR_BLACK);
 
   DrawString("Score", SCORE_X, SCORE_LINE);
-  DrawString("HiScore", SCORE_X, HIGHSCORE_LINE);
+  DrawString("HiSco", SCORE_X, HIGHSCORE_LINE);
   DrawString("Max", SCORE_X, MAX_LINE);
 }
 
@@ -95,6 +95,6 @@ void DrawGameOver() {
   DrawRect(29, 8 * OVER_LINE - 4, 69, 15);
   DrawRect(28, 8 * OVER_LINE - 5, 71, 17);
   // Write "Game Over"
-  DrawString("GAME OVER", (DISPLAY_WIDTH - 9 * 4) / 2, OVER_LINE);
+  DrawString("GAME OVER", (DISPLAY_WIDTH - 9 * 5) / 2, OVER_LINE);
 }
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=arduino
