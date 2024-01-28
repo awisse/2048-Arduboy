@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include "Defines.h"
+#include "Font4x6.h"
 
 #define FONT_WIDTH 4
 #define FONT_HEIGHT 6
@@ -15,6 +16,7 @@ public:
 	static void PrintInt(uint16_t value, uint8_t line, uint8_t x, uint8_t xorMask = COLOUR_BLACK);
 
 private:
+  static uint16_t CharIdx(const char c);
 	static void DrawChar(uint8_t* screenPtr, char c, uint8_t xorMask);
 };
 // vim:ft=cpp

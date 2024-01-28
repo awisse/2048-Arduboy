@@ -1,6 +1,7 @@
 /* Helper functions to unclutter main file
  */
 #include "Draw.h"
+#include "Platform.h"
 #include "HexDigits.h"
 #include "Font.h"
 
@@ -26,7 +27,7 @@ void DrawInt(uint16_t value, uint8_t x, uint8_t line) {
 
 void InitScreen() {
 
-  FillScreen(COLOUR_BLACK);
+  Platform::FillScreen(COLOUR_BLACK);
 
   DrawString("Score", SCORE_X, SCORE_LINE);
   DrawString("HiSco", SCORE_X, HIGHSCORE_LINE);
@@ -34,7 +35,7 @@ void InitScreen() {
 }
 
 void EraseRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
-  DrawFilledRect(x, y, w, h, COLOUR_BLACK);
+  Platform::DrawFilledRect(x, y, w, h, COLOUR_BLACK);
 }
 
 void DrawMap(uint16_t board[DIM][DIM]) {
@@ -46,7 +47,7 @@ void DrawMap(uint16_t board[DIM][DIM]) {
   for (i = 0; i < PLACES; i++) {
     if ((value = board[i >> 2][i & 3])) {
       value &= 0x7FFF;
-      DrawBitmap(hex_digits[value], 32 + ((i << 2) & 0x30), (i << 4) & 0x30,
+      Platform::DrawBitmap(hex_digits[value], 32 + ((i << 2) & 0x30), (i << 4) & 0x30,
                  16, 16, COLOUR_WHITE);
     }
   }
@@ -60,7 +61,7 @@ void Flash(uint16_t board[DIM][DIM]) {
     value = board[i >> 2][i & 3];
     if (value & 0x8000 ) {
       //*value &= 0x7FFF;
-      DrawBitmap(white_square, 32 + ((i << 2) & 0x30), (i << 4) & 0x30,
+      Platform::DrawBitmap(white_square, 32 + ((i << 2) & 0x30), (i << 4) & 0x30,
                  16, 16, COLOUR_INVERT);
     }
   }
@@ -69,21 +70,24 @@ void Flash(uint16_t board[DIM][DIM]) {
 void DrawGameState(bool running) {
     // For testing: Whether "running" is true
   if (running) {
-    FillCircle(14, 30, 4, COLOUR_WHITE);
+    Platform::FillCircle(14, 30, 4, COLOUR_WHITE);
   } else {
-    FillCircle(14, 30, 4, COLOUR_BLACK);
-    DrawCircle(14, 30, 4);
+    Platform::FillCircle(14, 30, 4, COLOUR_BLACK);
+    Platform::DrawCircle(14, 30, 4);
   }
 }
 
 void DrawScore(unsigned int score, unsigned int highscore, unsigned int biggest) {
-  EraseRect(SCORE_X, (SCORE_LINE + 1) * FONT_STEP, DISPLAY_WIDTH - SCORE_X, FONT_STEP);
+  EraseRect(SCORE_X, (SCORE_LINE + 1) * FONT_STEP, DISPLAY_WIDTH - SCORE_X, 
+                      FONT_STEP);
   DrawInt(score, SCORE_X, SCORE_LINE + 1);
 
-  EraseRect(SCORE_X, (HIGHSCORE_LINE + 1) * FONT_STEP, DISPLAY_WIDTH - SCORE_X, FONT_STEP);
+  EraseRect(SCORE_X, (HIGHSCORE_LINE + 1) * FONT_STEP, 
+                      DISPLAY_WIDTH - SCORE_X, FONT_STEP);
   DrawInt(highscore, SCORE_X, HIGHSCORE_LINE + 1);
 
-  EraseRect(SCORE_X, (MAX_LINE + 1) * FONT_STEP, DISPLAY_WIDTH - SCORE_X, FONT_STEP);
+  EraseRect(SCORE_X, (MAX_LINE + 1) * FONT_STEP, 
+                      DISPLAY_WIDTH - SCORE_X, FONT_STEP);
   DrawInt(biggest, SCORE_X, MAX_LINE + 1);
 
 }
@@ -92,8 +96,8 @@ void DrawGameOver() {
   // EraseRect area
   EraseRect(29, 8 * OVER_LINE - 4, 69, 15);
   // Draw double border
-  DrawRect(29, 8 * OVER_LINE - 4, 69, 15);
-  DrawRect(28, 8 * OVER_LINE - 5, 71, 17);
+  Platform::DrawRect(29, 8 * OVER_LINE - 4, 69, 15);
+  Platform::DrawRect(28, 8 * OVER_LINE - 5, 71, 17);
   // Write "Game Over"
   DrawString("GAME OVER", (DISPLAY_WIDTH - 9 * 5) / 2, OVER_LINE);
 }

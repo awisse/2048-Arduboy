@@ -5,6 +5,7 @@
 #include "Draw.h"
 #include "Defines.h"
 #include "Platform.h"
+#include "Font.h"
 
 #ifdef DEBUG
 #include "debug.h"
@@ -60,37 +61,33 @@ uint8_t ButtonState() {
 // From Draw.h
 // Mapped Arduboy Functions
 
-void PutPixel(uint8_t x, uint8_t y, uint8_t colour)
+void Platform::PutPixel(uint8_t x, uint8_t y, uint8_t colour)
 {
   arduboy.drawPixel(x, y, colour);
 }
 
-void DrawBitmap(const uint8_t* bitmap,  int16_t x, int16_t y, uint8_t w,
+void Platform::DrawBitmap(const uint8_t* bitmap,  int16_t x, int16_t y, uint8_t w,
                 uint8_t h, uint8_t color) {
   arduboy.drawBitmap(x, y, bitmap, w, h, color);
 }
 
-void DrawRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
+void Platform::DrawRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
   arduboy.drawRect(x, y, w, h, WHITE);
 }
 
-void DrawFilledRect(int16_t x, int16_t y, uint8_t w, uint8_t h, uint8_t color) {
+void Platform::DrawFilledRect(int16_t x, int16_t y, uint8_t w, uint8_t h, uint8_t color) {
   arduboy.fillRect(x, y, w, h, color);
 }
 
-void DrawLine(int16_t x0, int16_t y0, uint8_t x1, uint8_t y1) {
-  arduboy.drawLine(x0, y0, x1, y1, WHITE);
-}
-
-void DrawCircle(int16_t x0, int16_t y0, uint8_t r) {
+void Platform::DrawCircle(int16_t x0, int16_t y0, uint8_t r) {
   arduboy.drawCircle(x0, y0, r);
 }
 
-void FillCircle(int16_t x0, int16_t y0, uint8_t r, uint8_t color) {
+void Platform::FillCircle(int16_t x0, int16_t y0, uint8_t r, uint8_t color) {
   arduboy.fillCircle(x0, y0, r, color);
 }
 
-void FillScreen(uint8_t color) {
+void Platform::FillScreen(uint8_t color) {
   arduboy.fillScreen(color);
 }
 
@@ -110,7 +107,7 @@ void DebugPrint(char* text) {
 }
 #endif
 
-// From game.h
+// From Game.h
 int Random(int min, int max) {
   return random(min, max);
 }
@@ -162,9 +159,66 @@ uint8_t FromEEPROM(uint8_t *bytes, int offset, int length) {
   return Saved;
 }
 
-// From Platform.h
-static uint8_t* Platform::GetScreenBuffer() {
-  return arduboy.getBuffer();
+// From Font.cpp
+void Font::PrintString(const char* str, uint8_t line, uint8_t x, uint8_t colour)
+{
+	uint8_t* screenPtr = arduboy.getBuffer();
+	uint8_t xorMask = colour == COLOUR_BLACK ? 0xFF : 0;
+	screenPtr += DISPLAY_WIDTH * line + x;
+
+	for (;;)
+	{
+		char c = *str++;
+		if (!c)
+			break;
+
+		DrawChar(screenPtr, c, xorMask);
+		screenPtr += glyphWidth;
+	}
 }
 
+void Font::PrintInt(uint16_t val, uint8_t line, uint8_t x, uint8_t colour)
+{
+	uint8_t* screenPtr = arduboy.getBuffer();
+	uint8_t xorMask = colour == COLOUR_BLACK ? 0xFF : 0;
+	screenPtr += DISPLAY_WIDTH * line + x;
+
+	if (val == 0)
+	{
+		DrawChar(screenPtr, '0', xorMask);
+		return;
+	}
+
+	constexpr int maxDigits = 5;
+	char buffer[maxDigits];
+	int bufCount = 0;
+
+	for (int n = 0; n < maxDigits && val != 0; n++)
+	{
+		unsigned char c = val % 10;
+		buffer[bufCount++] = '0' + c;
+		val = val / 10;
+	}
+
+	for (int n = bufCount - 1; n >= 0; n--)
+	{
+		DrawChar(screenPtr, buffer[n], xorMask);
+    screenPtr += glyphWidth;
+	}
+
+}
+
+void Font::DrawChar(uint8_t* screenPtr, char c, uint8_t xorMask)
+{
+  uint16_t idx = CharIdx(c);
+	const uint8_t* fontPtr;
+
+  fontPtr = font_images + idx;
+
+	screenPtr[0] = xorMask ^ pgm_read_byte(&fontPtr[0]);
+	screenPtr[1] = xorMask ^ pgm_read_byte(&fontPtr[1]);
+	screenPtr[2] = xorMask ^ pgm_read_byte(&fontPtr[2]);
+	screenPtr[3] = xorMask ^ pgm_read_byte(&fontPtr[3]);
+
+}
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab
