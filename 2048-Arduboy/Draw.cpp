@@ -73,20 +73,20 @@ void DrawGameState(bool running) {
     Platform::FillCircle(14, 30, 4, COLOUR_WHITE);
   } else {
     Platform::FillCircle(14, 30, 4, COLOUR_BLACK);
-    Platform::DrawCircle(14, 30, 4);
+    Platform::DrawCircle(14, 30, 4, COLOUR_WHITE);
   }
 }
 
 void DrawScore(unsigned int score, unsigned int highscore, unsigned int biggest) {
-  EraseRect(SCORE_X, (SCORE_LINE + 1) * FONT_STEP, DISPLAY_WIDTH - SCORE_X, 
+  EraseRect(SCORE_X, (SCORE_LINE + 1) * FONT_STEP, DISPLAY_WIDTH - SCORE_X,
                       FONT_STEP);
   DrawInt(score, SCORE_X, SCORE_LINE + 1);
 
-  EraseRect(SCORE_X, (HIGHSCORE_LINE + 1) * FONT_STEP, 
+  EraseRect(SCORE_X, (HIGHSCORE_LINE + 1) * FONT_STEP,
                       DISPLAY_WIDTH - SCORE_X, FONT_STEP);
   DrawInt(highscore, SCORE_X, HIGHSCORE_LINE + 1);
 
-  EraseRect(SCORE_X, (MAX_LINE + 1) * FONT_STEP, 
+  EraseRect(SCORE_X, (MAX_LINE + 1) * FONT_STEP,
                       DISPLAY_WIDTH - SCORE_X, FONT_STEP);
   DrawInt(biggest, SCORE_X, MAX_LINE + 1);
 

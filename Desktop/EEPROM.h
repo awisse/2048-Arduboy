@@ -9,7 +9,7 @@ class EEPROM {
     uint16_t length() {return size;}
     // Called periodically to persist data, for instance in game loop
     void save(); // Save to file
-    
+
 
   private:
     void load(); // Load from file

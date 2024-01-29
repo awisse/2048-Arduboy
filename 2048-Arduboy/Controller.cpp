@@ -1,19 +1,35 @@
 #include "Controller.h"
 #include "Game.h"
 #include "Defines.h"
+#include "Platform.h"
 
 #ifdef DEBUG
 #include "debug.h"
 #endif
 
+
+uint8_t previousButtons, currentButtons;
 uint8_t DebouncedButtons();
+
+bool JustPressed(uint8_t buttons) {
+  return ((buttons & currentButtons) && !(buttons & previousButtons));
+}
+
+bool JustReleased(uint8_t buttons) {
+  return (!(buttons & currentButtons) && (buttons & previousButtons));
+}
 
 void HandleEvent() {
 
   static unsigned long startAPress, startBPress;
   static bool AButtonDown, BButtonDown;
   static int BButtonLongPressCycles;
-  uint8_t buttons;
+
+
+
+
+  previousButtons = currentButtons;
+  currentButtons = Platform::ButtonState();
 
   if (JustPressed(INPUT_A)) {
     AButtonDown = true;
@@ -63,17 +79,17 @@ void HandleEvent() {
     ResetHighScore();
   }
 
-  buttons = DebouncedButtons();
+  uint8_t buttons = DebouncedButtons();
   if (buttons & (INPUT_UP | INPUT_DOWN | INPUT_LEFT | INPUT_RIGHT)) {
     ExecuteMove(buttons);
   }
 }
 
 uint8_t DebouncedButtons() {
+  // Wait for release
   static bool pressed;
-  uint8_t buttons = ButtonState();
 
-  if (!buttons) {
+  if (!currentButtons) {
     pressed = false;
     return 0;
   } else if (pressed) {
@@ -81,7 +97,7 @@ uint8_t DebouncedButtons() {
   }
 
   pressed = true;
-  return buttons;
+  return currentButtons;
 }
 
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=arduino

@@ -1,23 +1,24 @@
 #include <SDL.h>
 
+#include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include <iostream>
 #include "EEPROM.h"
 #include "../2048-Arduboy/Defines.h"
 #include "../2048-Arduboy/Platform.h"
 #include "../2048-Arduboy/Controller.h"
-/* #include "Game.h" */
-/* #include "Interface.h" */
-/* #include "Simulation.h" */
+#include "../2048-Arduboy/Game.h"
 
 #define ZOOM_SCALE 4
 
 SDL_Window* AppWindow;
 SDL_Renderer* AppRenderer;
 EEPROM eeprom;
+time_t StartTime;
 
 // Replicate the Arduboy screen buffer here:
-uint8_t sBuffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8]; 
+uint8_t sBuffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
 uint8_t InputMask = 0;
 void cleanup();
 
@@ -38,7 +39,7 @@ void Platform::PutPixel(uint8_t x, uint8_t y, uint8_t colour) {
   SDL_RenderDrawPoint(AppRenderer, x, y);
 }
 
-void Platform::DrawBitmap(const uint8_t* data, int16_t x, int16_t y, 
+void Platform::DrawBitmap(const uint8_t* data, int16_t x, int16_t y,
     uint8_t w, uint8_t h, uint8_t colour)
 {
   for (int j = 0; j < h; j++)
@@ -59,9 +60,9 @@ void Platform::DrawBitmap(const uint8_t* data, int16_t x, int16_t y,
   }
 }
 
-void Platform::DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, 
+void Platform::DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
     uint8_t colour) {
-  
+
   SetColour(colour);
 
   if (SDL_RenderDrawLine(AppRenderer, x0, y0, x1, y1)) {
@@ -71,7 +72,7 @@ void Platform::DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
 
 void Platform::DrawRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
   SDL_Rect rect;
-  
+
   rect.x = x;
   rect.y = y;
   rect.w = w;
@@ -86,7 +87,7 @@ void Platform::DrawRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
 
 void Platform::DrawFilledRect(int16_t x, int16_t y, uint8_t w, uint8_t h, uint8_t colour) {
   SDL_Rect rect;
-  
+
   rect.x = x;
   rect.y = y;
   rect.w = w;
@@ -136,7 +137,7 @@ void Platform::DrawCircle(int16_t x0, int16_t y0, uint8_t r, uint8_t colour) {
 }
 
 void Platform::FillCircle(int16_t x0, int16_t y0, uint8_t r, uint8_t colour) {
-  
+
   SetColour(colour);
 
   int16_t f = 1 - r;
@@ -169,7 +170,7 @@ void Platform::FillCircle(int16_t x0, int16_t y0, uint8_t r, uint8_t colour) {
 }
 
 void Platform::FillScreen(uint8_t colour) {
-  
+
   SetColour(colour);
 
   if (SDL_RenderClear(AppRenderer)) {
@@ -190,26 +191,37 @@ uint8_t Platform::FromEEPROM(uint8_t *bytes, int offset, int length) {
 }
 
 // From Controller.h
-bool JustPressed(uint8_t button) {
-  return InputMask & button;
-}
-
-bool JustReleased(uint8_t button) {
-  return !(InputMask & button);
-}
-
-uint8_t Platform::GetInput() {
-  return InputMask;
-}
-
-uint8_t ButtonState()
+uint8_t Platform::ButtonState()
 {
   return InputMask;
 }
 
+// From Game.h
+int Random(int i0, int i1) {
+  int r;
+
+  r = (int)random() & 0xFFFFFFFF;
+  return r;
+}
+
+unsigned long Millis() {
+  struct timespec ts;
+  unsigned long ms;
+
+  if (clock_gettime(CLOCK_REALTIME, &ts)) {
+    std::cerr << "Can't get clock_gettime" << "\n";
+  }
+
+  ms = 1000 * (ts.tv_sec - StartTime) + ts.tv_nsec / 1000000;
+  return ms;
+}
+
 // Local Functions
 //
-void InitGame() {
+void Initialize() {
+  InitGame();
+  StartTime = time(NULL);
+  srandom(StartTime);
 }
 
 int main(int argc, char* argv[])
@@ -220,7 +232,7 @@ int main(int argc, char* argv[])
       SDL_WINDOW_RESIZABLE, &AppWindow, &AppRenderer);
   SDL_RenderSetLogicalSize(AppRenderer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
-  InitGame();
+  Initialize();
 
   bool running = true;
   InputMask = 0;

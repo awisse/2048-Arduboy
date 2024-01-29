@@ -26,7 +26,7 @@ void EEPROM::write(const uint8_t* data, uint16_t idx, uint16_t sz) {
   saved = false;
 }
 
-void EEPROM::save() { 
+void EEPROM::save() {
   // Save to file
   char filepath[1024];
 
@@ -42,7 +42,7 @@ void EEPROM::save() {
 void EEPROM::load() {
   // Load from file
   char filepath[1024];
-  
+
   addhome(filepath, filename);
   std::ifstream ifile(filepath, std::ifstream::binary);
 

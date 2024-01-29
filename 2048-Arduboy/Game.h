@@ -22,7 +22,7 @@ enum {
 };
 
 // Map Arduino functions
-int Random(int min, int max);
+int Random(int i0, int i1);
 unsigned long Millis();
 uint8_t ToEEPROM(uint8_t *bytes, int offset, int length);
 uint8_t FromEEPROM(uint8_t *bytes, int offset, int length);

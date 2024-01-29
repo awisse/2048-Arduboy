@@ -20,7 +20,7 @@ void setup() {
   // put your setup code here, to run once:
   // initiate arduboy instance
   arduboy.begin();
-  arduboy.setFrameRate(20);
+  arduboy.setFrameRate(FRAME_RATE);
 
   while (!arduboy.pressed(A_BUTTON)) {
     arduboy.idle();
@@ -46,16 +46,7 @@ void loop() {
   }
 }
 
-// From Controller.h
-bool JustPressed(uint8_t button) {
-  return arduboy.justPressed(button);
-}
-
-bool JustReleased(uint8_t button) {
-  return arduboy.justReleased(button);
-}
-
-uint8_t ButtonState() {
+uint8_t Platform::ButtonState() {
   return arduboy.buttonsState();
 }
 // From Draw.h
@@ -79,8 +70,8 @@ void Platform::DrawFilledRect(int16_t x, int16_t y, uint8_t w, uint8_t h, uint8_
   arduboy.fillRect(x, y, w, h, colour);
 }
 
-void Platform::DrawCircle(int16_t x0, int16_t y0, uint8_t r) {
-  arduboy.drawCircle(x0, y0, r);
+void Platform::DrawCircle(int16_t x0, int16_t y0, uint8_t r, uint8_t colour) {
+  arduboy.drawCircle(x0, y0, r, colour);
 }
 
 void Platform::FillCircle(int16_t x0, int16_t y0, uint8_t r, uint8_t colour) {
@@ -108,16 +99,20 @@ void DebugPrint(char* text) {
 #endif
 
 // From Game.h
-int Random(int min, int max) {
-  return random(min, max);
+int Random(int i0, int i1) {
+  return random(i0, i1);
 }
+
+
+
+
 unsigned long Millis() {
   return millis();
 }
 
 #define EEP(x) EEPROM[EEPROM_STORAGE_SPACE_START + x]
 
-uint8_t ToEEPROM(uint8_t *bytes, int offset, int length) {
+uint8_t Platform::ToEEPROM(uint8_t *bytes, int offset, int length) {
   int i;
   if (offset < 0) {
     return WrongOffset;
@@ -138,7 +133,7 @@ uint8_t ToEEPROM(uint8_t *bytes, int offset, int length) {
   return Saved;
 }
 
-uint8_t FromEEPROM(uint8_t *bytes, int offset, int length) {
+uint8_t Platform::FromEEPROM(uint8_t *bytes, int offset, int length) {
   // Get Game from EEPROM
   int i = EEPROM_STORAGE_SPACE_START;
   if (i + offset < 0) {

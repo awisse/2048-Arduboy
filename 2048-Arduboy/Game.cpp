@@ -4,6 +4,7 @@ Helper functions to unclutter main .ino file
 #include "Game.h"
 #include "Draw.h"
 #include "Controller.h"
+#include "Platform.h"
 
 uint16_t board[DIM][DIM];
 GameStateStruct GameState;
@@ -104,11 +105,11 @@ void SaveGame() {
   GameState.moving = false;
 
   // Save GameState
-  if (ToEEPROM((uint8_t*)&GameState, 0, sizeof(GameState)) != Saved) {
+  if (Platform::ToEEPROM((uint8_t*)&GameState, 0, sizeof(GameState)) != Saved) {
     return;
   }
   // Save Board
-  if (ToEEPROM((uint8_t*)board, sizeof(GameState), sizeof(board)) != Saved) {
+  if (Platform::ToEEPROM((uint8_t*)board, sizeof(GameState), sizeof(board)) != Saved) {
     return;
   }
 }
@@ -116,9 +117,9 @@ void SaveGame() {
 uint8_t LoadGame() {
 
   unsigned int highScore = GameState.highScore;
-  uint8_t savedState = FromEEPROM((uint8_t*)&GameState, 0, sizeof(GameState));
+  uint8_t savedState = Platform::FromEEPROM((uint8_t*)&GameState, 0, sizeof(GameState));
   if (savedState == Saved) {
-    savedState = FromEEPROM((uint8_t*)board, sizeof(GameState), sizeof(board));
+    savedState = Platform::FromEEPROM((uint8_t*)board, sizeof(GameState), sizeof(board));
   }
 
   GameState.saved = true;
