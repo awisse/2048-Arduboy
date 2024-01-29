@@ -6,7 +6,6 @@
 #include "../2048-Arduboy/Defines.h"
 #include "../2048-Arduboy/Platform.h"
 #include "../2048-Arduboy/Controller.h"
-#include "test.h"
 /* #include "Game.h" */
 /* #include "Interface.h" */
 /* #include "Simulation.h" */
@@ -16,8 +15,6 @@
 SDL_Window* AppWindow;
 SDL_Renderer* AppRenderer;
 EEPROM eeprom;
-
-Demo *demo;
 
 // Replicate the Arduboy screen buffer here:
 uint8_t sBuffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8]; 
@@ -72,7 +69,7 @@ void Platform::DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
   }
 }
 
-void DrawRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
+void Platform::DrawRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
   SDL_Rect rect;
   
   rect.x = x;
@@ -87,7 +84,7 @@ void DrawRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
   }
 }
 
-void DrawFilledRect(int16_t x, int16_t y, uint8_t w, uint8_t h, uint8_t colour) {
+void Platform::DrawFilledRect(int16_t x, int16_t y, uint8_t w, uint8_t h, uint8_t colour) {
   SDL_Rect rect;
   
   rect.x = x;
@@ -148,10 +145,8 @@ void Platform::FillCircle(int16_t x0, int16_t y0, uint8_t r, uint8_t colour) {
   int16_t x = 0;
   int16_t y = r;
 
-  PutPixel(x0, y0+r, colour);
-  PutPixel(x0, y0-r, colour);
-  PutPixel(x0+r, y0, colour);
-  PutPixel(x0-r, y0, colour);
+  // Horizontal center line
+  DrawLine(x0-r, y0, x0+r, y0, colour);
 
   while (x<y)
   {
@@ -168,6 +163,8 @@ void Platform::FillCircle(int16_t x0, int16_t y0, uint8_t r, uint8_t colour) {
 
     DrawLine(x0+x, y0-y, x0-x, y0-y, colour);
     DrawLine(x0+y, y0-x, x0-y, y0-x, colour);
+    DrawLine(x0+x, y0+y, x0-x, y0+y, colour);
+    DrawLine(x0+y, y0+x, x0-y, y0+x, colour);
   }
 }
 
@@ -213,7 +210,6 @@ uint8_t ButtonState()
 // Local Functions
 //
 void InitGame() {
-  demo = new Demo();
 }
 
 int main(int argc, char* argv[])
@@ -224,7 +220,7 @@ int main(int argc, char* argv[])
       SDL_WINDOW_RESIZABLE, &AppWindow, &AppRenderer);
   SDL_RenderSetLogicalSize(AppRenderer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
-  /* InitGame(); */
+  InitGame();
 
   bool running = true;
   InputMask = 0;
@@ -253,7 +249,6 @@ int main(int argc, char* argv[])
 
             case SDLK_RIGHT:
               InputMask |= INPUT_RIGHT;
-              demo->nextDemo();
               break;
 
             case SDLK_UP:
@@ -309,7 +304,6 @@ int main(int argc, char* argv[])
 }
 
 void cleanup() {
-  delete demo;
   SDL_DestroyRenderer(AppRenderer);
   SDL_DestroyWindow(AppWindow);
   SDL_Quit();
