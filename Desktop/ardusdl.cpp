@@ -258,6 +258,10 @@ int main(int argc, char* argv[])
               InputMask |= INPUT_A;
               break;
 
+            case SDLK_b:
+              InputMask |= INPUT_B;
+              break;
+
             case SDLK_LEFT:
               InputMask |= INPUT_LEFT;
               break;
@@ -284,23 +288,27 @@ int main(int argc, char* argv[])
           switch (event.key.keysym.sym) {
 
             case SDLK_a:
-              InputMask |= INPUT_A;
+              InputMask &= ~INPUT_A;
+              break;
+
+            case SDLK_b:
+              InputMask &= ~INPUT_B;
               break;
 
             case SDLK_LEFT:
-              InputMask |= INPUT_LEFT;
+              InputMask &= ~INPUT_LEFT;
               break;
 
             case SDLK_RIGHT:
-              InputMask |= INPUT_RIGHT;
+              InputMask &= ~INPUT_RIGHT;
               break;
 
             case SDLK_UP:
-              InputMask |= INPUT_UP;
+              InputMask &= ~INPUT_UP;
               break;
 
             case SDLK_DOWN:
-              InputMask |= INPUT_DOWN;
+              InputMask &= ~INPUT_DOWN;
               break;
           }
           break;
