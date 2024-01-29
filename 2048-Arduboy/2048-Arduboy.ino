@@ -67,28 +67,28 @@ void Platform::PutPixel(uint8_t x, uint8_t y, uint8_t colour)
 }
 
 void Platform::DrawBitmap(const uint8_t* bitmap,  int16_t x, int16_t y, uint8_t w,
-                uint8_t h, uint8_t color) {
-  arduboy.drawBitmap(x, y, bitmap, w, h, color);
+                uint8_t h, uint8_t colour) {
+  arduboy.drawBitmap(x, y, bitmap, w, h, colour);
 }
 
 void Platform::DrawRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
   arduboy.drawRect(x, y, w, h, WHITE);
 }
 
-void Platform::DrawFilledRect(int16_t x, int16_t y, uint8_t w, uint8_t h, uint8_t color) {
-  arduboy.fillRect(x, y, w, h, color);
+void Platform::DrawFilledRect(int16_t x, int16_t y, uint8_t w, uint8_t h, uint8_t colour) {
+  arduboy.fillRect(x, y, w, h, colour);
 }
 
 void Platform::DrawCircle(int16_t x0, int16_t y0, uint8_t r) {
   arduboy.drawCircle(x0, y0, r);
 }
 
-void Platform::FillCircle(int16_t x0, int16_t y0, uint8_t r, uint8_t color) {
-  arduboy.fillCircle(x0, y0, r, color);
+void Platform::FillCircle(int16_t x0, int16_t y0, uint8_t r, uint8_t colour) {
+  arduboy.fillCircle(x0, y0, r, colour);
 }
 
-void Platform::FillScreen(uint8_t color) {
-  arduboy.fillScreen(color);
+void Platform::FillScreen(uint8_t colour) {
+  arduboy.fillScreen(colour);
 }
 
 #ifdef DEBUG
