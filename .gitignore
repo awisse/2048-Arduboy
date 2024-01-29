@@ -1,3 +1,5 @@
 build
 .theia
 test*
+*.o
+*.a
