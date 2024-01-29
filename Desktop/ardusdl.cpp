@@ -9,6 +9,7 @@
 #include "../2048-Arduboy/Platform.h"
 #include "../2048-Arduboy/Controller.h"
 #include "../2048-Arduboy/Game.h"
+#include "../2048-Arduboy/Font.h"
 
 #define ZOOM_SCALE 4
 
@@ -18,7 +19,6 @@ EEPROM eeprom;
 time_t StartTime;
 
 // Replicate the Arduboy screen buffer here:
-uint8_t sBuffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
 uint8_t InputMask = 0;
 void cleanup();
 
@@ -182,12 +182,12 @@ void Platform::Clear() {
   FillScreen(COLOUR_BLACK);
 }
 
-// EEPROM
+// TODO: EEPROM
 uint8_t Platform::ToEEPROM(uint8_t *bytes, int offset, int length) {
-  return 0;
+  return Saved;
 }
 uint8_t Platform::FromEEPROM(uint8_t *bytes, int offset, int length) {
-  return 0;
+  return NotSaved;
 }
 
 // From Controller.h
@@ -200,8 +200,11 @@ uint8_t Platform::ButtonState()
 int Random(int i0, int i1) {
   int r;
 
-  r = (int)random() & 0xFFFFFFFF;
-  return r;
+  if (i0 == i1) return i0;
+
+  r = ((int)random() & 0xFFFFFFFF) % (i1 - i0);
+
+  return i0 + r;
 }
 
 unsigned long Millis() {
@@ -303,6 +306,7 @@ int main(int argc, char* argv[])
           break;
         }
       }
+    StepGame();
 
     SDL_RenderPresent(AppRenderer);
 

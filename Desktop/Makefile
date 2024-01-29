@@ -1,6 +1,6 @@
 TARGET := ardusdl
 VPATH = ../2048-Arduboy
-CPPFLAGS :=  -D_REENTRANT -I/usr/include/SDL2
+CPPFLAGS :=  -ggdb -D_REENTRANT -I/usr/include/SDL2
 LDLIBS := -lSDL2
 SOURCES := $(wildcard $(VPATH)/*.cpp *.cpp)
 OBJECTS := $(SOURCES:%.cpp=%.o)
