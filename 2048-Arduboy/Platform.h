@@ -19,7 +19,6 @@ public:
   static void FillScreen(uint8_t colour);
   static void Clear();
 
-  static uint8_t CheckSignature(const char* signature, int offset);
   static uint8_t ToEEPROM(uint8_t *bytes, int offset, int length);
   static uint8_t FromEEPROM(uint8_t *bytes, int offset, int length);
 	/* static void PlaySound(const uint16_t* audioPattern); */

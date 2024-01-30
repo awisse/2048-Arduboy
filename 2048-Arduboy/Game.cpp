@@ -19,6 +19,7 @@ void NewGame();
 void MoveTiles(int direction);
 void GameOver();
 void BoardMask(uint16_t mask);
+uint8_t CheckSignature(const char* signature, int offset);
 
 void InitGame() {
   uint8_t loadState = LoadGame();
@@ -126,7 +127,7 @@ void SaveGame() {
 uint8_t LoadGame() {
 
   unsigned int highScore = GameState.highScore;
-  uint8_t savedState = Platform::CheckSignature(signature, 0);
+  uint8_t savedState = CheckSignature(signature, 0);
 
   if (savedState != Saved) {
     return savedState;
@@ -271,4 +272,23 @@ void BoardMask(uint16_t mask) {
 void ResetHighScore() {
   GameState.highScore = 0;
 }
+
+uint8_t CheckSignature(const char* signature, int offset) {
+  char id[4];
+  int i;
+  uint8_t savedState = Platform::FromEEPROM((uint8_t*)id, offset, 4);
+
+  if (savedState != Saved) {
+    return savedState;
+  }
+
+  for (i=0; i<4; i++) {
+    if (id[i] != signature[i]) {
+      return WrongSignature;
+    }
+  }
+
+  return Saved;
+}
+
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=arduino

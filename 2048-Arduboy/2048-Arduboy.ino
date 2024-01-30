@@ -107,24 +107,6 @@ unsigned long Millis() {
   return millis();
 }
 
-uint8_t Platform::CheckSignature(const char* signature, int offset) {
-  char id[4];
-  int i;
-  uint8_t savedState = FromEEPROM((uint8_t*)id, offset, 4);
-
-  if (savedState != Saved) {
-    return savedState;
-  }
-
-  for (i=0; i<4; i++) {
-    if (id[i] != signature[i]) {
-      return WrongSignature;
-    }
-  }
-
-  return Saved;
-}
-
 #define EEP(x) EEPROM[EEPROM_STORAGE_SPACE_START + x]
 
 uint8_t Platform::ToEEPROM(uint8_t *bytes, int offset, int sz) {
