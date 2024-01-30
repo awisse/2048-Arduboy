@@ -183,11 +183,34 @@ void Platform::Clear() {
 }
 
 // TODO: EEPROM
-uint8_t Platform::ToEEPROM(uint8_t *bytes, int offset, int length) {
+uint8_t Platform::ToEEPROM(uint8_t *bytes, int offset, int sz) {
+
+  if (offset < 0) {
+    return WrongOffset;
+  }
+
+  int insertAt = offset + EEPROM_STORAGE_SPACE_START;
+
+  if (insertAt + sz > eeprom.length()) {
+    return TooBig;
+  }
+
+  eeprom.write(bytes, insertAt, sz);
   return Saved;
 }
-uint8_t Platform::FromEEPROM(uint8_t *bytes, int offset, int length) {
-  return NotSaved;
+
+uint8_t Platform::FromEEPROM(uint8_t *bytes, int offset, int sz) {
+  int getFrom = offset + EEPROM_STORAGE_SPACE_START;
+
+  if (getFrom < 0) {
+    return WrongOffset;
+  }
+  if (getFrom + sz > eeprom.length()) {
+    return TooBig;
+  }
+
+  eeprom.read(bytes, getFrom, sz);
+  return Saved;
 }
 
 // From Controller.h
@@ -315,6 +338,9 @@ int main(int argc, char* argv[])
         }
       }
     StepGame();
+    if (!eeprom.isSaved()) {
+      eeprom.save();
+    }
 
     SDL_RenderPresent(AppRenderer);
 

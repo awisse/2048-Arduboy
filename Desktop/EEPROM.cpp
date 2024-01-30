@@ -37,6 +37,7 @@ void EEPROM::save() {
     std::cerr << "Can't open " << filename << " for writing" << "\n";
   }
   ofile.write((char*)eeprom, size);
+  saved = true;
 }
 
 void EEPROM::load() {
