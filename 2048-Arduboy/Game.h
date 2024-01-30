@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include "Defines.h"
 
+constexpr char signature[] = "2048";
+
 typedef struct {
   bool running;   // true if running, false if not.
   bool modified;  // true after board is modified. For refresh.
@@ -18,7 +20,8 @@ enum {
   Saved,
   NotSaved, // Never been saved.
   WrongOffset,
-  TooBig
+  TooBig,
+  WrongSignature
 };
 
 // Map Arduino functions

@@ -25,9 +25,6 @@ void HandleEvent() {
   static bool AButtonDown, BButtonDown;
   static int BButtonLongPressCycles;
 
-
-
-
   previousButtons = currentButtons;
   currentButtons = Platform::ButtonState();
 
@@ -42,7 +39,7 @@ void HandleEvent() {
   }
 
   if (AButtonDown && (Millis() - startAPress) > LONG_PRESS) {
-    startBPress = Millis();
+    startAPress = Millis();
     // Handle Long Press Event
     LoadGame();
   }

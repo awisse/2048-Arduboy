@@ -5,6 +5,11 @@ Helper functions to unclutter main .ino file
 #include "Draw.h"
 #include "Controller.h"
 #include "Platform.h"
+#include <string.h>
+
+#ifdef DEBUG
+#include "debug.h"
+#endif
 
 uint16_t board[DIM][DIM];
 GameStateStruct GameState;
@@ -104,12 +109,16 @@ void SaveGame() {
   GameState.saved = true;
   GameState.moving = false;
 
+  // Save Signature
+  if (Platform::ToEEPROM((uint8_t*)signature, 0, 4) != Saved) {
+    return;
+  }
   // Save GameState
-  if (Platform::ToEEPROM((uint8_t*)&GameState, 0, sizeof(GameState)) != Saved) {
+  if (Platform::ToEEPROM((uint8_t*)&GameState, 4, sizeof(GameState)) != Saved) {
     return;
   }
   // Save Board
-  if (Platform::ToEEPROM((uint8_t*)board, sizeof(GameState), sizeof(board)) != Saved) {
+  if (Platform::ToEEPROM((uint8_t*)board, 4 + sizeof(GameState), sizeof(board)) != Saved) {
     return;
   }
 }
@@ -117,9 +126,21 @@ void SaveGame() {
 uint8_t LoadGame() {
 
   unsigned int highScore = GameState.highScore;
-  uint8_t savedState = Platform::FromEEPROM((uint8_t*)&GameState, 0, sizeof(GameState));
-  if (savedState == Saved) {
-    savedState = Platform::FromEEPROM((uint8_t*)board, sizeof(GameState), sizeof(board));
+  uint8_t savedState = Platform::CheckSignature(signature, 0);
+
+  if (savedState != Saved) {
+    return savedState;
+  }
+
+  savedState = Platform::FromEEPROM((uint8_t*)&GameState, 4, 
+    sizeof(GameState));
+  if (savedState != Saved) {
+    return savedState;
+  }
+  savedState = Platform::FromEEPROM((uint8_t*)board, 
+    4 + sizeof(GameState), sizeof(board));
+  if (savedState != Saved) {
+    return savedState;
   }
 
   GameState.saved = true;
@@ -128,9 +149,7 @@ uint8_t LoadGame() {
   if (highScore > GameState.highScore) {
     GameState.highScore = highScore;
   }
-
   return savedState;
-
 }
 
 void NewPiece() {

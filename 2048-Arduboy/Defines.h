@@ -53,7 +53,7 @@
 #define LONG_PRESS 2000
 // FrameRate
 #ifdef DEBUG
-#define FRAME_RATE 2
+#define FRAME_RATE 20
 #else
 #define FRAME_RATE 20
 #endif

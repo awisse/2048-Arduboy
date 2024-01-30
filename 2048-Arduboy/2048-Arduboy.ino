@@ -103,53 +103,58 @@ int Random(int i0, int i1) {
   return random(i0, i1);
 }
 
-
-
-
 unsigned long Millis() {
   return millis();
 }
 
+uint8_t Platform::CheckSignature(const char* signature, int offset) {
+  char id[4];
+  int i;
+  uint8_t savedState = FromEEPROM((uint8_t*)id, offset, 4);
+
+  if (savedState != Saved) {
+    return savedState;
+  }
+
+  for (i=0; i<4; i++) {
+    if (id[i] != signature[i]) {
+      return WrongSignature;
+    }
+  }
+
+  return Saved;
+}
+
 #define EEP(x) EEPROM[EEPROM_STORAGE_SPACE_START + x]
 
-uint8_t Platform::ToEEPROM(uint8_t *bytes, int offset, int length) {
+uint8_t Platform::ToEEPROM(uint8_t *bytes, int offset, int sz) {
   int i;
   if (offset < 0) {
     return WrongOffset;
   }
-  if (EEPROM_STORAGE_SPACE_START + 4 + offset + length > EEPROM.length()) {
+  if (EEPROM_STORAGE_SPACE_START + offset + sz > EEPROM.length()) {
     return TooBig;
   }
   // Write Game to EEPROM
-  // Write signature of game
-  EEP(0) = '2';
-  EEP(1) = '0';
-  EEP(2) = '4';
-  EEP(3) = '8';
 
-  for (i = 0; i < length; i++) {
-    EEP(i + 4 + offset) = bytes[i];
+  for (i = 0; i < sz; i++) {
+    EEP(i + offset) = bytes[i];
   }
   return Saved;
 }
 
-uint8_t Platform::FromEEPROM(uint8_t *bytes, int offset, int length) {
+uint8_t Platform::FromEEPROM(uint8_t *bytes, int offset, int sz) {
   // Get Game from EEPROM
-  int i = EEPROM_STORAGE_SPACE_START;
-  if (i + offset < 0) {
+  int i = EEPROM_STORAGE_SPACE_START + offset;
+  if (i < 0) {
     return WrongOffset;
   }
-  if (i + 4 + offset + length > EEPROM.length()) {
+  if (i + sz > EEPROM.length()) {
     return TooBig; // Can't read from here
   }
-  // Read data from EEPROM. Return 1 if no game saved.
-  if (EEPROM[i++] != '2') return NotSaved;
-  if (EEPROM[i++] != '0') return NotSaved;
-  if (EEPROM[i++] != '4') return NotSaved;
-  if (EEPROM[i++] != '8') return NotSaved;
 
-  for (i = 0; i < length; i++) {
-    bytes[i] = EEP(i + 4 + offset);
+  for (i = 0; i < sz; i++) {
+    bytes[i] = EEP(i + offset);
   }
   return Saved;
 }
