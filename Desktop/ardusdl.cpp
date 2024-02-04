@@ -9,7 +9,7 @@
 #include "../2048-Arduboy/Platform.h"
 #include "../2048-Arduboy/Controller.h"
 #include "../2048-Arduboy/Game.h"
-#include "../2048-Arduboy/Font.h"
+/* #include "../2048-Arduboy/Font.h" */
 
 #define ZOOM_SCALE 4
 
