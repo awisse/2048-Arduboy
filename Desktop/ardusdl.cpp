@@ -183,7 +183,7 @@ void Platform::Clear() {
 }
 
 // TODO: EEPROM
-uint8_t Platform::ToEEPROM(uint8_t *bytes, int offset, int sz) {
+uint8_t Platform::ToEEPROM(uint8_t *bytes, int offset, uint16_t sz) {
 
   if (offset < 0) {
     return WrongOffset;
@@ -199,7 +199,7 @@ uint8_t Platform::ToEEPROM(uint8_t *bytes, int offset, int sz) {
   return Saved;
 }
 
-uint8_t Platform::FromEEPROM(uint8_t *bytes, int offset, int sz) {
+uint8_t Platform::FromEEPROM(uint8_t *bytes, int offset, uint16_t sz) {
   int getFrom = offset + EEPROM_STORAGE_SPACE_START;
 
   if (getFrom < 0) {

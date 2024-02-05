@@ -111,15 +111,23 @@ void SaveGame() {
   GameState.moving = false;
 
   // Save Signature
-  if (Platform::ToEEPROM((uint8_t*)signature, 0, 4) != Saved) {
+  if (Platform::ToEEPROM((uint8_t*)signature, 0, 4u) != Saved) {
     return;
   }
+
+  // Save Length
+  if (Platform::ToEEPROM((uint8_t*)&eeprom_sz, 4, 2u) != Saved) {
+    return;
+  }
+
   // Save GameState
-  if (Platform::ToEEPROM((uint8_t*)&GameState, 4, sizeof(GameState)) != Saved) {
+  if (Platform::ToEEPROM((uint8_t*)&GameState, 6, sizeof(GameState)) != Saved) 
+  {
     return;
   }
   // Save Board
-  if (Platform::ToEEPROM((uint8_t*)board, 4 + sizeof(GameState), sizeof(board)) != Saved) {
+  if (Platform::ToEEPROM((uint8_t*)board, 6 + sizeof(GameState), 
+      sizeof(board)) != Saved) {
     return;
   }
 }
@@ -127,19 +135,29 @@ void SaveGame() {
 uint8_t LoadGame() {
 
   unsigned int highScore = GameState.highScore;
+  uint16_t eeprom_length;
+  int offset; // If length not saved
   uint8_t savedState = CheckSignature(signature, 0);
 
   if (savedState != Saved) {
     return savedState;
   }
 
-  savedState = Platform::FromEEPROM((uint8_t*)&GameState, 4, 
+  // Check whether two bytes after signature are == eeprom_sz
+  savedState = Platform::FromEEPROM((uint8_t*)&eeprom_length, 4, 2u); 
+  if (savedState != Saved) {
+    return savedState;
+  }
+  offset = (eeprom_length == eeprom_sz) ? 2 : 0;
+
+  savedState = Platform::FromEEPROM((uint8_t*)&GameState, 4 + offset, 
     sizeof(GameState));
   if (savedState != Saved) {
     return savedState;
   }
+
   savedState = Platform::FromEEPROM((uint8_t*)board, 
-    4 + sizeof(GameState), sizeof(board));
+    4 + offset + sizeof(GameState), sizeof(board));
   if (savedState != Saved) {
     return savedState;
   }
@@ -291,4 +309,4 @@ uint8_t CheckSignature(const char* signature, int offset) {
   return Saved;
 }
 
-// vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=arduino
+// vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab

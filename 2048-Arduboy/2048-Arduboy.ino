@@ -109,7 +109,7 @@ unsigned long Millis() {
 
 #define EEP(x) EEPROM[EEPROM_STORAGE_SPACE_START + x]
 
-uint8_t Platform::ToEEPROM(uint8_t *bytes, int offset, int sz) {
+uint8_t Platform::ToEEPROM(uint8_t *bytes, int offset, uint16_t sz) {
   int i;
   if (offset < 0) {
     return WrongOffset;
@@ -125,7 +125,7 @@ uint8_t Platform::ToEEPROM(uint8_t *bytes, int offset, int sz) {
   return Saved;
 }
 
-uint8_t Platform::FromEEPROM(uint8_t *bytes, int offset, int sz) {
+uint8_t Platform::FromEEPROM(uint8_t *bytes, int offset, uint16_t sz) {
   // Get Game from EEPROM
   int i = EEPROM_STORAGE_SPACE_START + offset;
   if (i < 0) {
