@@ -77,7 +77,7 @@ void DrawGameState(bool running) {
   }
 }
 
-void DrawScore(unsigned int score, unsigned int highscore, unsigned int biggest) {
+void DrawScore(uint16_t score, uint16_t highscore, uint16_t biggest) {
   EraseRect(SCORE_X, (SCORE_LINE + 1) * FONT_STEP, DISPLAY_WIDTH - SCORE_X,
                       FONT_STEP);
   DrawInt(score, SCORE_X, SCORE_LINE + 1);

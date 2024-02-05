@@ -134,7 +134,7 @@ void SaveGame() {
 
 uint8_t LoadGame() {
 
-  unsigned int highScore = GameState.highScore;
+  uint16_t highScore = GameState.highScore;
   uint16_t eeprom_length;
   int offset; // If length not saved
   uint8_t savedState = CheckSignature(signature, 0);
@@ -174,7 +174,7 @@ uint8_t LoadGame() {
 void NewPiece() {
   // Insert a new piece in the board.
   //
-  unsigned int i, n = 0;
+  uint16_t i, n = 0;
   uint8_t zeroes[PLACES];
 
   for (i = 0; i < PLACES; i++) {
@@ -225,7 +225,7 @@ uint16_t* boardh(int x, int y) {
 void MoveTiles(int direction) { // Universal move in all directions
   // Move tiles in any direction
   // Reminder: board[x-axis][y-axis]
-  unsigned int sum;
+  uint16_t sum;
   int i, j, k;  // Loop variables
   int from, to; // Loop limits
   int dir;      // Sign
@@ -281,7 +281,7 @@ void MoveTiles(int direction) { // Universal move in all directions
 
 void BoardMask(uint16_t mask) {
   // Logical and of all board values with mask;
-  unsigned int i;
+  uint16_t i;
   for (i=0; i<PLACES; i++) {
     *(*board + i) &= mask;
   }
