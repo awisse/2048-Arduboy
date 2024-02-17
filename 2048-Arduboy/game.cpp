@@ -16,10 +16,10 @@ GameStateStruct GameState;
 static int16_t flash;
 
 void NewGame();
-void MoveTiles(int direction);
+bool MoveTiles(uint8_t direction); // True if something moved
 void GameOver();
 void BoardMask(uint16_t mask);
-uint8_t CheckSignature(const char* signature, int offset);
+uint8_t CheckSignature(const char* signature, uint16_t offset);
 
 void InitGame() {
   uint8_t loadState = LoadGame();
@@ -140,7 +140,7 @@ uint8_t LoadGame() {
 
   uint16_t highScore = GameState.highScore;
   uint16_t eeprom_length;
-  int offset; // If length not saved
+  uint8_t offset; // If length not saved
   uint8_t savedState = CheckSignature(signature, 0);
 
   if (savedState != Saved) {
@@ -203,7 +203,7 @@ void NewPiece() {
 
 }
 
-void ExecuteMove(int direction) {
+void ExecuteMove(uint8_t direction) {
 
   if (!(direction & (INPUT_LEFT | INPUT_RIGHT | INPUT_UP | INPUT_DOWN))) {
     // This can't happen if event dispatched by controller
@@ -211,29 +211,32 @@ void ExecuteMove(int direction) {
     Text::DrawString(U8"BOOM!", 98, 8);
     return;
   }
-  MoveTiles(direction);
-  NewPiece();
+  bool moved = MoveTiles(direction);
+  if (moved) {
+    NewPiece();
+  }
 }
 
 // Define two functions to access the values of the board.
 // boardv inverts the indices for the algorithm to apply
 // in the vertical direction.
-uint16_t* boardv(int x, int y) {
+uint16_t* boardv(uint8_t x, uint8_t y) {
   return &board[y][x];
 }
 // boardh(i, j) returns the address of the value of board[i][j]
-uint16_t* boardh(int x, int y) {
+uint16_t* boardh(uint8_t x, uint8_t y) {
   return &board[x][y];
 }
 
-void MoveTiles(int direction) { // Universal move in all directions
+bool MoveTiles(uint8_t direction) { // Universal move in all directions
   // Move tiles in any direction
   // Reminder: board[x-axis][y-axis]
   uint16_t sum;
-  int i, j, k;  // Loop variables
-  int from, to; // Loop limits
-  int dir;      // Sign
-  uint16_t* (*Board)(int, int); // Access function
+  int8_t i, j, k;  // Loop variables
+  int8_t from, to; // Loop limits
+  int8_t dir;      // Sign
+  uint16_t* (*Board)(uint8_t, uint8_t); // Access function
+  bool moved = false; // True if at least one move
 
 
   // Depending of the direction chosen by the user, configure the
@@ -262,6 +265,7 @@ void MoveTiles(int direction) { // Universal move in all directions
           if (*Board(k,j)) {
             *Board(i,j) = *Board(k,j);
             *Board(k,j) = 0;
+            moved = true; 
             break;
           }
         }
@@ -277,10 +281,12 @@ void MoveTiles(int direction) { // Universal move in all directions
           *Board(i,j) |= 0x8000; // Set highest bit for flashing
           flash = FLASH_FRAMES;
           *Board(k,j) = 0;
+          moved = true;
         }
       }
     }
   }
+  return moved; 
 }
 
 void BoardMask(uint16_t mask) {
@@ -295,7 +301,7 @@ void ResetHighScore() {
   GameState.highScore = 0;
 }
 
-uint8_t CheckSignature(const char* signature, int offset) {
+uint8_t CheckSignature(const char* signature, uint16_t offset) {
   char id[4];
   uint8_t i;
   SavedState savedState = Platform::FromEEPROM((uint8_t*)id, offset, 4);

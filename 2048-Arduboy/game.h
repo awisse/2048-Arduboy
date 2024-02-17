@@ -26,7 +26,7 @@ uint8_t LoadGame();
 void Logic();
 
 void NewPiece();
-void ExecuteMove(int direction);
+void ExecuteMove(uint8_t direction);
 void ResetHighScore();
 
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:ft=cpp
