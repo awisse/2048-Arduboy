@@ -14,12 +14,14 @@ Helper functions to unclutter main .ino file
 uint16_t board[DIM][DIM];
 GameStateStruct GameState;
 static int16_t flash;
+bool board_full;
 
 void NewGame();
 bool MoveTiles(uint8_t direction); // True if something moved
-void GameOver();
+void GameOver(bool winning);
+void Reward();  
 void BoardMask(uint16_t mask);
-uint8_t CheckSignature(const char* signature, uint16_t offset);
+SavedState CheckSignature(const char* signature, uint16_t offset);
 
 void InitGame() {
   uint8_t loadState = LoadGame();
@@ -28,6 +30,8 @@ void InitGame() {
     NewGame();
     return;
   }
+
+  board_full = false;
 
   InitScreen();
   flash = 0;
@@ -42,7 +46,7 @@ bool StepGame() {
     HandleEvent();
   }
 
-  Logic();
+  FlashLogic();
 
   if (GameState.modified) {
     DrawMap(board);
@@ -54,24 +58,24 @@ bool StepGame() {
     GameState.saved = false;
   }
 
-  if (GameState.biggest == MAX_VALUE) {
-    GameOver();
-    /* TODO: This **has to be improved**.
-     * Very frustrating to be kicked out after
-     * having reached MAX_VALUE without reward */
-  } else if (GameState.biggest == TARGET_VALUE) {
-    // TODO: Big Reward !!!
-    // Stars!!
+  if (GameState.biggest >= (1 << MAX_VALUE)) {
+    GameOver(true);
   }
+
   DrawGameState(GameState.running);
 
-  // FIXME: Only draw if changes on board
+  // FIXME: Always true because of DrawGameState ...
   return true;
 
 }
 
 void NewGame() {
 
+  // Don't accidentally destroy a running game. Only 
+  // start new game if game *NOT* running
+  if (GameState.running) {
+    return;
+  }
   InitScreen();
 
   BoardMask(0);
@@ -83,11 +87,18 @@ void NewGame() {
   GameState.moving = false;
   GameState.saved = true;
 
+  board_full = false; 
+
   NewPiece();
   NewPiece();
 }
 
-void Logic() {
+void ResetGame() {
+  GameState.running = false;
+  NewGame();
+}
+
+void FlashLogic() {
 
   if (flash > 0) {
     Flash(board);
@@ -99,11 +110,18 @@ void Logic() {
 
 }
 
-void GameOver() {
+void GameOver(bool winning) {
   GameState.running = false;
   SaveGame(); // Mainly to save highscore
-  DrawGameOver();
-  // Later: Save high score, etc.
+  if (winning) {
+    Reward();
+  } else {
+    DrawGameOver();
+  }
+}
+
+void Reward() {
+  // TODO: Big Party !!
 }
 
 void SaveGame() {
@@ -136,12 +154,12 @@ void SaveGame() {
   }
 }
 
-uint8_t LoadGame() {
+SavedState LoadGame() {
 
   uint16_t highScore = GameState.highScore;
   uint16_t eeprom_length;
   uint8_t offset; // If length not saved
-  uint8_t savedState = CheckSignature(signature, 0);
+  SavedState savedState = CheckSignature(signature, 0);
 
   if (savedState != Saved) {
     return savedState;
@@ -168,6 +186,7 @@ uint8_t LoadGame() {
 
   GameState.saved = true;
   GameState.modified = true;
+  board_full = !GameState.running;
   // High Score is forever
   if (highScore > GameState.highScore) {
     GameState.highScore = highScore;
@@ -185,10 +204,8 @@ void NewPiece() {
     if (!board[i & 3][i >> 2]) zeroes[n++] = i;
   }
 
-  if (n == 0) {
-    GameOver();
-    return; // Board Full
-  }
+  board_full = n <= 1;
+  if (n == 0) return;
 
   i = zeroes[Platform::Random(0, n)];
   // Reuse n to save memory
@@ -205,6 +222,9 @@ void NewPiece() {
 
 void ExecuteMove(uint8_t direction) {
 
+  if (!GameState.running) {
+    return;
+  }
   if (!(direction & (INPUT_LEFT | INPUT_RIGHT | INPUT_UP | INPUT_DOWN))) {
     // This can't happen if event dispatched by controller
     EraseRect(98, 8, 29, 8);
@@ -214,6 +234,8 @@ void ExecuteMove(uint8_t direction) {
   bool moved = MoveTiles(direction);
   if (moved) {
     NewPiece();
+  } else if (board_full) {
+    GameOver(false);
   }
 }
 
@@ -301,7 +323,7 @@ void ResetHighScore() {
   GameState.highScore = 0;
 }
 
-uint8_t CheckSignature(const char* signature, uint16_t offset) {
+SavedState CheckSignature(const char* signature, uint16_t offset) {
   char id[4];
   uint8_t i;
   SavedState savedState = Platform::FromEEPROM((uint8_t*)id, offset, 4);

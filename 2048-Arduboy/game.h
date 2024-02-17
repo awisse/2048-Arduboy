@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include "defines.h"
+#include "globals.h"
 
 constexpr char signature[] = "2048";
 
@@ -21,9 +22,10 @@ constexpr uint16_t eeprom_sz = 0x30;
 void InitGame();
 bool StepGame();
 void NewGame();
+void ResetGame();
 void SaveGame();
-uint8_t LoadGame();
-void Logic();
+SavedState LoadGame();
+void FlashLogic();
 
 void NewPiece();
 void ExecuteMove(uint8_t direction);

@@ -4,6 +4,7 @@
 #include "draw.h"
 #include "platform.h"
 #include "hex-digits.h"
+#include "utils.h"
 #include "font.h"
 
 #define ERASE_BOARD() EraseRect(BOARD_X, BOARD_Y, TILE_SZ * DIM, TILE_SZ * DIM)
@@ -40,8 +41,8 @@ void DrawMap(uint16_t board[DIM][DIM]) {
   for (i = 0; i < PLACES; i++) {
     if ((value = board[i >> 2][i & 3])) {
       value &= 0x7FFF;
-      Platform::DrawBitmap(hex_digits[value], 32 + ((i << 2) & 0x30), (i << 4) & 0x30,
-                 16, 16, COLOUR_WHITE);
+      Platform::DrawBitmap(hex_digits[value], 32 + ((i << 2) & 0x30), 
+          (i << 4) & 0x30, 16, 16, COLOUR_WHITE);
     }
   }
 }
@@ -61,7 +62,7 @@ void Flash(uint16_t board[DIM][DIM]) {
 }
 
 void DrawGameState(bool running) {
-    // For testing: Whether "running" is true
+  // For testing: Whether "running" is true
   if (running) {
     Platform::DrawFilledCircle(14, 30, 4, COLOUR_WHITE);
   } else {
@@ -86,12 +87,20 @@ void DrawScore(uint16_t score, uint16_t highscore, uint16_t biggest) {
 }
 
 void DrawGameOver() {
+  uint8_t gameover_sz = len(U8(gameoverstr)) * FONT_WIDTH;
+  uint8_t gameover_x = (DISPLAY_WIDTH - gameover_sz) / 2;
+  uint8_t rect_x = gameover_x - 4;
+  uint8_t rect_w = gameover_sz + 8;
+
   // EraseRect area
-  EraseRect(29, 8 * OVER_LINE - 4, 69, 15);
+  EraseRect(rect_x, 8 * OVER_LINE - 4, rect_w, FONT_HEIGHT + 8);
   // Draw double border
-  Platform::DrawRect(29, 8 * OVER_LINE - 4, 69, 15);
-  Platform::DrawRect(28, 8 * OVER_LINE - 5, 71, 17);
+  Platform::DrawRect(rect_x, 8 * OVER_LINE - 4, rect_w, 
+                     FONT_HEIGHT + 8);
+  Platform::DrawRect(rect_x - 1, 8 * OVER_LINE - 5, rect_w + 2, 
+                     FONT_HEIGHT + 10);
   // Write "Game Over"
-  Text::DrawString(U8"GAME OVER", (DISPLAY_WIDTH - 9 * 5) / 2, OVER_LINE);
+  Text::DrawString(U8(gameoverstr), gameover_x, 
+                   OVER_LINE * FONT_HEIGHT + 1);
 }
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=cpp

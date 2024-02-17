@@ -23,44 +23,44 @@ void HandleEvent() {
   previousButtons = currentButtons;
   currentButtons = Platform::ButtonState();
 
+  // Handle A-Button Down Event
   if (JustPressed(INPUT_A)) {
     AButtonDown = true;
     startAPress = Platform::Millis();
+    NewGame();
   }
 
+  // Handle A-Button Up Event
   if (JustReleased(INPUT_A)) {
     AButtonDown = false;
     startAPress = Platform::Millis();
   }
 
+  // Handle A-Button long Press Event
   if (AButtonDown && (Platform::Millis() - startAPress) > LONG_PRESS) {
     startAPress = Platform::Millis();
-    // Handle Long Press Event
     LoadGame();
   }
 
+  // Handle B-Button Down Event
   if (JustPressed(INPUT_B)) {
     BButtonDown = true;
     startBPress = Platform::Millis();
-    // Handle Button Down Event
     SaveGame();
   }
 
+  // Handle B-Button Up Event
   if (JustReleased(INPUT_B)) {
     BButtonDown = false;
     startBPress = Platform::Millis();
     BButtonLongPressCycles = 0;
-    // Handle Button Up Event
   }
 
+  // Handle B-Button long Press Event
   if (BButtonDown && (Platform::Millis() - startBPress) > LONG_PRESS) {
     startBPress = Platform::Millis();
     BButtonLongPressCycles++;
-  #ifdef DEBUG
-    DebugPrint(BButtonLongPressCycles);
-  #endif
-    // Handle Long Press Event
-    NewGame();
+    ResetGame();
   }
 
   // Special: Erase high score

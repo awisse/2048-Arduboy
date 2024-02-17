@@ -29,4 +29,6 @@ typedef enum {
   TooBig,
   WrongSignature
 } SavedState;
+//
+constexpr uint8_t gameoverstr[] = "VOUS AVEZ PERDU!";
 // vim:ft=cpp
