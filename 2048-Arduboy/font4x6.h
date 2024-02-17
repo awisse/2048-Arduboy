@@ -1,5 +1,10 @@
-#define FONT4x6_WIDTH 4
-#define FONT4x6_HEIGHT 7
+#pragma once
+#include <stdint.h>
+#include "defines.h"
+#define GLYPH4x6_WIDTH 4
+#define GLYPH4x6_HEIGHT 8
+#define FONT4x6_WIDTH 5
+#define FONT4x6_HEIGHT 8
 
 #define CHAR_EXCLAMATION 33
 #define CHAR_PERIOD 46
@@ -14,7 +19,12 @@
 #define FONT_PERIOD_INDEX 63
 #define FONT_NUMBER_INDEX 52
 #define FONT_SPACE_INDEX 64
-#define FONT_BIDON_INDEX 65
+#define FONT_APOSTROPHE_INDEX 65
+#define FONT_EACUTE_INDEX 66
+#define FONT_ECIRCONFLEX_INDEX 67
+#define FONT_COLON_INDEX 68
+#define FONT_BIDON_INDEX 69
+
 
 const uint8_t PROGMEM font_images[] = {
 
@@ -408,11 +418,35 @@ const uint8_t PROGMEM font_images[] = {
   0x00,  // ░░░░░░░░
   0x00,  // ░░░░░░░░
 
+  // #39 Symbol '''.
+  0x00,  // ░░░░░░░░
+  0x03,  // ░░░░░▓▓▓
+  0x00,  // ░░░░░░░░
+  0x00,  // ░░░░░░░░
+
+  // #C3A9 Letter 'é'.
+  0x1C,  // ░░░▓▓▓░░
+  0x2A,  // ░░▓░▓░▓░
+  0x2B,  // ░░▓░▓░▓▓
+  0x2D,  // ░░▓░▓▓░▓
+
+  // #C3AA Letter 'ê'.
+  0x1C,  // ░░░▓▓▓░░
+  0x2B,  // ░░▓░▓░▓▓
+  0x2B,  // ░░▓░▓░▓▓
+  0x2C,  // ░░▓░▓▓░░
+
+  // #3A Symbol ':'.
+  0x00,  // ░░░░░░░░
+  0x12,  // ░░░▓░░▓░
+  0x00,  // ░░░░░░░░
+  0x00,  // ░░░░░░░░
+
   // #FF Symbol 'Bidon'.
   0x55,  // ░▓░▓░▓░▓
   0xAA,  // ▓░▓░▓░▓░
   0x55,  // ░▓░▓░▓░▓
-  0xAA   // ▓░▓░▓░▓░
+  0xAA,  // ▓░▓░▓░▓░
 };
 
-
+// vim:ft=cpp

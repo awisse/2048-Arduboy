@@ -1,4 +1,4 @@
-#include "Defines.h"
+#include "defines.h"
 /* #include for PROGMEM
  * Sixteen 16x16 bitmaps: 0,1,...,E,F */
 const uint8_t hex_digits[MAX_VALUE + 1][32] PROGMEM =
@@ -60,4 +60,4 @@ const uint8_t white_square[] PROGMEM =
   0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff
 };
 
-// vim:filetype=arduino
+// vim:filetype=cpp

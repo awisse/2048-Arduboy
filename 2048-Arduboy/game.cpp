@@ -1,11 +1,11 @@
 /*
 Helper functions to unclutter main .ino file
  */
-#include "Game.h"
-#include "Draw.h"
-#include "Controller.h"
-#include "Platform.h"
-#include <string.h>
+#include "globals.h"
+#include "game.h"
+#include "draw.h"
+#include "controller.h"
+#include "platform.h"
 
 #ifdef DEBUG
 #include "debug.h"
@@ -33,7 +33,7 @@ void InitGame() {
   flash = 0;
 }
 
-void StepGame() {
+bool StepGame() {
 
   if (GameState.moving) {
     // Future animation
@@ -61,8 +61,12 @@ void StepGame() {
      * having reached MAX_VALUE without reward */
   } else if (GameState.biggest == TARGET_VALUE) {
     // TODO: Big Reward !!!
+    // Stars!!
   }
   DrawGameState(GameState.running);
+
+  // FIXME: Only draw if changes on board
+  return true;
 
 }
 
@@ -121,12 +125,12 @@ void SaveGame() {
   }
 
   // Save GameState
-  if (Platform::ToEEPROM((uint8_t*)&GameState, 6, sizeof(GameState)) != Saved) 
+  if (Platform::ToEEPROM((uint8_t*)&GameState, 6, sizeof(GameState)) != Saved)
   {
     return;
   }
   // Save Board
-  if (Platform::ToEEPROM((uint8_t*)board, 6 + sizeof(GameState), 
+  if (Platform::ToEEPROM((uint8_t*)board, 6 + sizeof(GameState),
       sizeof(board)) != Saved) {
     return;
   }
@@ -144,19 +148,19 @@ uint8_t LoadGame() {
   }
 
   // Check whether two bytes after signature are == eeprom_sz
-  savedState = Platform::FromEEPROM((uint8_t*)&eeprom_length, 4, 2u); 
+  savedState = Platform::FromEEPROM((uint8_t*)&eeprom_length, 4, 2u);
   if (savedState != Saved) {
     return savedState;
   }
   offset = (eeprom_length == eeprom_sz) ? 2 : 0;
 
-  savedState = Platform::FromEEPROM((uint8_t*)&GameState, 4 + offset, 
+  savedState = Platform::FromEEPROM((uint8_t*)&GameState, 4 + offset,
     sizeof(GameState));
   if (savedState != Saved) {
     return savedState;
   }
 
-  savedState = Platform::FromEEPROM((uint8_t*)board, 
+  savedState = Platform::FromEEPROM((uint8_t*)board,
     4 + offset + sizeof(GameState), sizeof(board));
   if (savedState != Saved) {
     return savedState;
@@ -186,9 +190,9 @@ void NewPiece() {
     return; // Board Full
   }
 
-  i = zeroes[Random(0, n)];
+  i = zeroes[Platform::Random(0, n)];
   // Reuse n to save memory
-  n = (Random(0, 100) < HIPROB) ? 2 : 1;
+  n = (Platform::Random(0, 100) < HIPROB) ? 2 : 1;
   board[i & 3][i >> 2] = n;
 
   if ((1U << n) > GameState.biggest) {
@@ -204,7 +208,7 @@ void ExecuteMove(int direction) {
   if (!(direction & (INPUT_LEFT | INPUT_RIGHT | INPUT_UP | INPUT_DOWN))) {
     // This can't happen if event dispatched by controller
     EraseRect(98, 8, 29, 8);
-    DrawString("BOOM!", 98, 1);
+    Text::DrawString(U8"BOOM!", 98, 8);
     return;
   }
   MoveTiles(direction);
@@ -293,8 +297,8 @@ void ResetHighScore() {
 
 uint8_t CheckSignature(const char* signature, int offset) {
   char id[4];
-  int i;
-  uint8_t savedState = Platform::FromEEPROM((uint8_t*)id, offset, 4);
+  uint8_t i;
+  SavedState savedState = Platform::FromEEPROM((uint8_t*)id, offset, 4);
 
   if (savedState != Saved) {
     return savedState;

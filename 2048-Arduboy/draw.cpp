@@ -1,37 +1,31 @@
 /* Helper functions to unclutter main file
  */
-#include "Draw.h"
-#include "Platform.h"
-#include "HexDigits.h"
-#include "Font.h"
+#include "defines.h"
+#include "draw.h"
+#include "platform.h"
+#include "hex-digits.h"
+#include "font.h"
 
 #define ERASE_BOARD() EraseRect(BOARD_X, BOARD_Y, TILE_SZ * DIM, TILE_SZ * DIM)
 
 Font font;
 
-void DrawString(const char* text, uint8_t x, uint8_t line, uint8_t colour) {
-  font.PrintString(text, line, x, colour);
+void Text::DrawString(const uint8_t* text, uint8_t x, uint8_t y,
+                      uint8_t colour) {
+  font.PrintString(U8(text), x, y, colour);
 }
 
-void DrawString(const char* text, uint8_t x, uint8_t line) {
-  DrawString(text, x, line, COLOUR_WHITE);
-}
-
-void DrawInt(uint16_t value, uint8_t x, uint8_t line, uint8_t colour) {
-  font.PrintInt(value, line, x, colour);
-}
-
-void DrawInt(uint16_t value, uint8_t x, uint8_t line) {
-  DrawInt(value, x, line, COLOUR_WHITE);
+void Text::DrawInt(uint16_t value, uint8_t x, uint8_t y, uint8_t colour) {
+  font.PrintInt(value, x, y, colour);
 }
 
 void InitScreen() {
 
   Platform::FillScreen(COLOUR_BLACK);
 
-  DrawString("Score", SCORE_X, SCORE_LINE);
-  DrawString("HiSco", SCORE_X, HIGHSCORE_LINE);
-  DrawString("Max", SCORE_X, MAX_LINE);
+  Text::DrawString(U8"Score", SCORE_X, SCORE_LINE * FONT_STEP);
+  Text::DrawString(U8"HiSco", SCORE_X, HIGHSCORE_LINE * FONT_STEP);
+  Text::DrawString(U8"Max", SCORE_X, MAX_LINE * FONT_STEP);
 }
 
 void EraseRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
@@ -40,7 +34,6 @@ void EraseRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
 
 void DrawMap(uint16_t board[DIM][DIM]) {
   int16_t i, value;
-  uint8_t color; // For flashing
   // Draw 4x4 map of numbers in board.
   ERASE_BOARD();
 
@@ -70,25 +63,25 @@ void Flash(uint16_t board[DIM][DIM]) {
 void DrawGameState(bool running) {
     // For testing: Whether "running" is true
   if (running) {
-    Platform::FillCircle(14, 30, 4, COLOUR_WHITE);
+    Platform::DrawFilledCircle(14, 30, 4, COLOUR_WHITE);
   } else {
-    Platform::FillCircle(14, 30, 4, COLOUR_BLACK);
+    Platform::DrawFilledCircle(14, 30, 4, COLOUR_BLACK);
     Platform::DrawCircle(14, 30, 4, COLOUR_WHITE);
   }
 }
 
 void DrawScore(uint16_t score, uint16_t highscore, uint16_t biggest) {
-  EraseRect(SCORE_X, (SCORE_LINE + 1) * FONT_STEP, DISPLAY_WIDTH - SCORE_X,
-                      FONT_STEP);
-  DrawInt(score, SCORE_X, SCORE_LINE + 1);
+  EraseRect(SCORE_X, (SCORE_LINE + 1) * FONT_STEP,
+      DISPLAY_WIDTH - SCORE_X, FONT_STEP);
+  Text::DrawInt(score, SCORE_X, FONT_STEP * (SCORE_LINE + 1));
 
   EraseRect(SCORE_X, (HIGHSCORE_LINE + 1) * FONT_STEP,
                       DISPLAY_WIDTH - SCORE_X, FONT_STEP);
-  DrawInt(highscore, SCORE_X, HIGHSCORE_LINE + 1);
+  Text::DrawInt(highscore, SCORE_X, FONT_STEP * (HIGHSCORE_LINE + 1));
 
   EraseRect(SCORE_X, (MAX_LINE + 1) * FONT_STEP,
                       DISPLAY_WIDTH - SCORE_X, FONT_STEP);
-  DrawInt(biggest, SCORE_X, MAX_LINE + 1);
+  Text::DrawInt(biggest, SCORE_X, FONT_STEP * (MAX_LINE + 1));
 
 }
 
@@ -99,6 +92,6 @@ void DrawGameOver() {
   Platform::DrawRect(29, 8 * OVER_LINE - 4, 69, 15);
   Platform::DrawRect(28, 8 * OVER_LINE - 5, 71, 17);
   // Write "Game Over"
-  DrawString("GAME OVER", (DISPLAY_WIDTH - 9 * 5) / 2, OVER_LINE);
+  Text::DrawString(U8"GAME OVER", (DISPLAY_WIDTH - 9 * 5) / 2, OVER_LINE);
 }
-// vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=arduino
+// vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=cpp

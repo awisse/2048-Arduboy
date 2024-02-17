@@ -5,18 +5,20 @@
 #include <time.h>
 #include <iostream>
 #include "EEPROM.h"
-#include "../2048-Arduboy/Defines.h"
-#include "../2048-Arduboy/Platform.h"
-#include "../2048-Arduboy/Controller.h"
-#include "../2048-Arduboy/Game.h"
-/* #include "../2048-Arduboy/Font.h" */
+#include "../2048-Arduboy/defines.h"
+#include "../2048-Arduboy/platform.h"
+#include "../2048-Arduboy/controller.h"
+#include "../2048-Arduboy/game.h"
 
-#define ZOOM_SCALE 4
+#define ZOOM_SCALE 4U
 
-SDL_Window* AppWindow;
-SDL_Renderer* AppRenderer;
+SDL_Window* AppWindow = NULL;
+SDL_Renderer* AppRenderer = NULL;
+SDL_Surface* AppSurface = NULL;
+uint8_t sBuffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
 EEPROM eeprom;
-time_t StartTime;
+uint32_t StartTime;
+uint8_t zoom_scale;
 
 // Replicate the Arduboy screen buffer here:
 uint8_t InputMask = 0;
@@ -32,24 +34,58 @@ void SetColour(uint8_t colour) {
   }
 }
 
+
 // From Platform.h
+uint8_t Platform::ButtonState()
+{
+  return InputMask;
+}
+
+uint8_t* Platform::GetBuffer() {
+  return sBuffer;
+}
+
 void Platform::PutPixel(uint8_t x, uint8_t y, uint8_t colour) {
 
+  if ((x < 0) || (y < 0) || (x >= DISPLAY_WIDTH) || (y >= DISPLAY_HEIGHT)) {
+    return;
+  }
   SetColour(colour);
   SDL_RenderDrawPoint(AppRenderer, x, y);
+}
+
+void Platform::DrawBuffer() {
+  // Transpose sBuffer to screen. Faster than PutPixel one by one
+  uint16_t i, bit;
+  SDL_Rect sq;
+
+  sq.w = sq.h = zoom_scale;
+
+  for (i = 0; i < DISPLAY_WIDTH * DISPLAY_HEIGHT / 8; i++) {
+    // 1 byte = 8 vertical pixels
+    for (bit=0; bit<8; bit++) {
+      if ((sBuffer[i] >> bit) & 0x01) {
+        sq.y = zoom_scale * (i / DISPLAY_WIDTH * 8 + 7 - bit);
+        sq.x = zoom_scale * (i % DISPLAY_WIDTH);
+        if (SDL_FillRect(AppSurface, &sq, 0xFFFFFFFF)) {
+          std::cerr << SDL_GetError() << "\n";
+        }
+      }
+    }
+  }
 }
 
 void Platform::DrawBitmap(const uint8_t* data, int16_t x, int16_t y,
     uint8_t w, uint8_t h, uint8_t colour)
 {
-  for (int j = 0; j < h; j++)
+  for (uint16_t j = 0; j < h; j++)
   {
-    for (int i = 0; i < w; i++)
+    for (uint16_t i = 0; i < w; i++)
     {
-      int blockX = i / 8;
-      int blockY = j / 8;
-      int blocksPerWidth = w / 8;
-      int blockIndex = blockY * blocksPerWidth + blockX;
+      uint16_t blockX = i / 8;
+      uint16_t blockY = j / 8;
+      uint16_t blocksPerWidth = w / 8;
+      uint16_t blockIndex = blockY * blocksPerWidth + blockX;
       uint8_t pixels = data[blockIndex * 8 + i % 8];
       uint8_t mask = 1 << (j % 8);
       if (pixels & mask)
@@ -66,11 +102,12 @@ void Platform::DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
   SetColour(colour);
 
   if (SDL_RenderDrawLine(AppRenderer, x0, y0, x1, y1)) {
-    std::cout << SDL_GetError() << std::endl;
+    std::cout << SDL_GetError() << "\n";
   }
 }
 
-void Platform::DrawRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
+void Platform::DrawRect(int16_t x, int16_t y, uint8_t w, uint8_t h,
+    uint8_t colour) {
   SDL_Rect rect;
 
   rect.x = x;
@@ -78,10 +115,10 @@ void Platform::DrawRect(int16_t x, int16_t y, uint8_t w, uint8_t h) {
   rect.w = w;
   rect.h = h;
 
-  SetColour(COLOUR_WHITE);
+  SetColour(colour);
 
   if (SDL_RenderDrawRect(AppRenderer, &rect) < 0) {
-    std::cout << SDL_GetError() << std::endl;
+    std::cout << SDL_GetError() << "\n";
   }
 }
 
@@ -136,7 +173,8 @@ void Platform::DrawCircle(int16_t x0, int16_t y0, uint8_t r, uint8_t colour) {
   }
 }
 
-void Platform::FillCircle(int16_t x0, int16_t y0, uint8_t r, uint8_t colour) {
+void Platform::DrawFilledCircle(int16_t x0, int16_t y0, uint8_t r,
+    uint8_t colour) {
 
   SetColour(colour);
 
@@ -182,14 +220,49 @@ void Platform::Clear() {
   FillScreen(COLOUR_BLACK);
 }
 
+#ifdef DEV_DEB
+void Platform::DebugPrint(uint16_t value, bool endl) {
+  std::cout << value << ":";
+  if (endl) {
+    std::cout << "\n";
+  }
+  std::cout.flush();
+}
+
+void Platform::DebugPrint(int16_t value, bool endl) {
+  std::cout << value << ":";
+  if (endl) {
+    std::cout << "\n";
+  }
+  std::cout.flush();
+}
+
+void Platform::DebugPrint(float value, bool endl) {
+  std::cout << value << ":";
+  if (endl) {
+    std::cout << "\n";
+  }
+  std::cout.flush();
+}
+
+void Platform::DebugPrint(const uint8_t* text, bool endl) {
+  std::cout << text;
+  if (endl) {
+    std::cout << "\n";
+  }
+}
+#endif
+
+
 // TODO: EEPROM
-uint8_t Platform::ToEEPROM(uint8_t *bytes, int offset, uint16_t sz) {
+SavedState Platform::ToEEPROM(const uint8_t *bytes,
+    const uint16_t offset, const uint16_t sz) {
 
   if (offset < 0) {
     return WrongOffset;
   }
 
-  int insertAt = offset + EEPROM_STORAGE_SPACE_START;
+  uint16_t insertAt = offset + EEPROM_STORAGE_SPACE_START;
 
   if (insertAt + sz > eeprom.length()) {
     return TooBig;
@@ -199,8 +272,9 @@ uint8_t Platform::ToEEPROM(uint8_t *bytes, int offset, uint16_t sz) {
   return Saved;
 }
 
-uint8_t Platform::FromEEPROM(uint8_t *bytes, int offset, uint16_t sz) {
-  int getFrom = offset + EEPROM_STORAGE_SPACE_START;
+SavedState Platform::FromEEPROM(uint8_t *bytes, const uint16_t offset,
+    const uint16_t sz) {
+  uint16_t getFrom = offset + EEPROM_STORAGE_SPACE_START;
 
   if (getFrom < 0) {
     return WrongOffset;
@@ -213,50 +287,89 @@ uint8_t Platform::FromEEPROM(uint8_t *bytes, int offset, uint16_t sz) {
   return Saved;
 }
 
-// From Controller.h
-uint8_t Platform::ButtonState()
-{
-  return InputMask;
-}
 
-// From Game.h
-int Random(int i0, int i1) {
-  int r;
+int16_t Platform::Random(int16_t i0, int16_t i1) {
+  // Return random variable between i0 and i1, inclusively
+  int16_t r;
 
-  if (i0 == i1) return i0;
+  if (i0 >= i1) return i0;
 
-  r = ((int)random() & 0xFFFFFFFF) % (i1 - i0);
-
+  r = random() % (i1 - i0);
   return i0 + r;
 }
 
-unsigned long Millis() {
+uint32_t Platform::GenerateRandomSeed() {
   struct timespec ts;
-  unsigned long ms;
+
+  if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
+    std::cerr << "Error in GenerateRandomSeed" << "\n";
+    return 0;
+  }
+  return (uint32_t)ts.tv_nsec & 0xFFFFFFFF;
+}
+
+void Platform::InitRandomSeed() {
+  srandom(GenerateRandomSeed());
+}
+
+uint32_t Platform::Millis() {
+  struct timespec ts;
+  uint32_t ms;
 
   if (clock_gettime(CLOCK_REALTIME, &ts)) {
     std::cerr << "Can't get clock_gettime" << "\n";
   }
-
-  ms = 1000 * (ts.tv_sec - StartTime) + ts.tv_nsec / 1000000;
+  ms = ((1000 * ts.tv_sec  + ts.tv_nsec / 1000000) & 0xFFFFFFFF) - StartTime;
   return ms;
 }
 
 // Local Functions
 //
 void Initialize() {
+  struct timespec ts;
+  memset(sBuffer, 0, sizeof(sBuffer));
+  // Initialize timer from start of program
+  if (clock_gettime(CLOCK_REALTIME, &ts)) {
+    std::cerr << "Can't get clock_gettime" << "\n";
+  }
+  StartTime = (1000 * ts.tv_sec + ts.tv_nsec / 1000000) & 0xFFFFFFFF;
+
+  // Initialize game
   InitGame();
-  StartTime = time(NULL);
-  srandom(StartTime);
 }
 
 int main(int argc, char* argv[])
 {
-  SDL_Init(SDL_INIT_VIDEO);
+  zoom_scale = ZOOM_SCALE;
+  if (argc == 2) {
+    zoom_scale = atoi(argv[1]);
+    if ((zoom_scale < 1) || (zoom_scale > 8)) {
+      zoom_scale = ZOOM_SCALE;
+      std::cerr << "Zoom must be between 1 and 8" << "\n";
+    }
+  }
 
-  SDL_CreateWindowAndRenderer(DISPLAY_WIDTH * ZOOM_SCALE, DISPLAY_HEIGHT * ZOOM_SCALE,
-      SDL_WINDOW_RESIZABLE, &AppWindow, &AppRenderer);
-  SDL_RenderSetLogicalSize(AppRenderer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+  if (SDL_Init(SDL_INIT_VIDEO)) {
+    std::cerr << SDL_GetError() << "\n";
+    return -1;
+  }
+
+  if (SDL_CreateWindowAndRenderer(DISPLAY_WIDTH * zoom_scale,
+        DISPLAY_HEIGHT * zoom_scale, 0, &AppWindow, &AppRenderer)) {
+    std::cerr << SDL_GetError() << "\n";
+    cleanup();
+    return -1;
+  }
+  if (SDL_RenderSetLogicalSize(AppRenderer, DISPLAY_WIDTH, DISPLAY_HEIGHT)) {
+    std::cerr << SDL_GetError() << "\n";
+    cleanup();
+    return -1;
+  }
+  if ((AppSurface=SDL_GetWindowSurface(AppWindow)) == NULL) {
+    std::cerr << SDL_GetError() << "\n";
+    cleanup();
+    return -1;
+  }
 
   Initialize();
 
@@ -337,15 +450,16 @@ int main(int argc, char* argv[])
           break;
         }
       }
-    StepGame();
     if (!eeprom.isSaved()) {
       eeprom.save();
     }
 
-    SDL_RenderPresent(AppRenderer);
+    bool modified = StepGame();
+    if (modified)
+      SDL_RenderPresent(AppRenderer);
 
     // FrameRate
-    SDL_Delay(1000 / 20);
+    SDL_Delay(1000 / FRAME_RATE);
 
   }
 
@@ -354,8 +468,18 @@ int main(int argc, char* argv[])
 }
 
 void cleanup() {
-  SDL_DestroyRenderer(AppRenderer);
-  SDL_DestroyWindow(AppWindow);
+  if (AppRenderer) {
+    SDL_ClearError();
+    SDL_DestroyRenderer(AppRenderer);
+    std::cerr << SDL_GetError() << "\n";
+  }
+
+  if (AppWindow) {
+    SDL_DestroyWindow(AppWindow);
+    SDL_ClearError();
+    std::cerr << SDL_GetError() << "\n";
+  }
+
   SDL_Quit();
 }
 

@@ -1,12 +1,7 @@
-#include "Controller.h"
-#include "Game.h"
-#include "Defines.h"
-#include "Platform.h"
-
-#ifdef DEBUG
-#include "debug.h"
-#endif
-
+#include "controller.h"
+#include "game.h"
+#include "defines.h"
+#include "platform.h"
 
 uint8_t previousButtons, currentButtons;
 uint8_t DebouncedButtons();
@@ -30,36 +25,36 @@ void HandleEvent() {
 
   if (JustPressed(INPUT_A)) {
     AButtonDown = true;
-    startAPress = Millis();
+    startAPress = Platform::Millis();
   }
 
   if (JustReleased(INPUT_A)) {
     AButtonDown = false;
-    startAPress = Millis();
+    startAPress = Platform::Millis();
   }
 
-  if (AButtonDown && (Millis() - startAPress) > LONG_PRESS) {
-    startAPress = Millis();
+  if (AButtonDown && (Platform::Millis() - startAPress) > LONG_PRESS) {
+    startAPress = Platform::Millis();
     // Handle Long Press Event
     LoadGame();
   }
 
   if (JustPressed(INPUT_B)) {
     BButtonDown = true;
-    startBPress = Millis();
+    startBPress = Platform::Millis();
     // Handle Button Down Event
     SaveGame();
   }
 
   if (JustReleased(INPUT_B)) {
     BButtonDown = false;
-    startBPress = Millis();
+    startBPress = Platform::Millis();
     BButtonLongPressCycles = 0;
     // Handle Button Up Event
   }
 
-  if (BButtonDown && (Millis() - startBPress) > LONG_PRESS) {
-    startBPress = Millis();
+  if (BButtonDown && (Platform::Millis() - startBPress) > LONG_PRESS) {
+    startBPress = Platform::Millis();
     BButtonLongPressCycles++;
   #ifdef DEBUG
     DebugPrint(BButtonLongPressCycles);
@@ -97,4 +92,4 @@ uint8_t DebouncedButtons() {
   return currentButtons;
 }
 
-// vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=arduino
+// vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=cpp

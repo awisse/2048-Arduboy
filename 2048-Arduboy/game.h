@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "Defines.h"
+#include "defines.h"
 
 constexpr char signature[] = "2048";
 
@@ -15,26 +15,11 @@ typedef struct {
   bool saved; // If state of game is saved in EEPROM
   } GameStateStruct;
 
-// Result codes for (To|From)EEPROM
-enum {
-  Saved,
-  NotSaved, // Never been saved.
-  WrongOffset,
-  TooBig,
-  WrongSignature
-};
-
 // Number of bytes used in EEPROM
 constexpr uint16_t eeprom_sz = 0x30;
 
-// Map Arduino functions
-int Random(int i0, int i1);
-unsigned long Millis();
-uint8_t ToEEPROM(uint8_t *bytes, int offset, int length);
-uint8_t FromEEPROM(uint8_t *bytes, int offset, int length);
-
 void InitGame();
-void StepGame();
+bool StepGame();
 void NewGame();
 void SaveGame();
 uint8_t LoadGame();
@@ -44,4 +29,4 @@ void NewPiece();
 void ExecuteMove(int direction);
 void ResetHighScore();
 
-// vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab
+// vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:ft=cpp

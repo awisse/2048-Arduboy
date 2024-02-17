@@ -14,7 +14,30 @@
 //#define pgm_read_ptr pgm_read_word
 #endif
 
-//#define DEBUG
+#define DEV_DEB
+
+// Conversions
+#define U8 (uint8_t*)
+#define U16 (uint16_t)
+#define I16 (int16_t)
+
+// Game Parameters
+#define FRAME_RATE 30
+#define FRAME_STEP U16(FRAME_RATE / 10)
+#define MAX_STARS 64
+#define STAR_DELAY 500
+
+// Mathematical constants
+
+// Functions
+#define XPOS(x) ((x >> 3) & 0x7F)
+#define YPOS(x) ((x >> 10) & 0x3F)
+
+// Message Dimensions (Middle of the screen)
+#define MSG_X 40
+#define MSG_Y 24
+#define MSG_W 48
+#define MSG_H 16
 
 // Game maximal value: 1 << MAX_VALUE
 #define MAX_VALUE 0XD
@@ -63,5 +86,4 @@
 #define INPUT_B 4u
 #define LONG_PRESS 2000
 
-// FrameRate
-#define FRAME_RATE 20
+// vim: ft=cpp
