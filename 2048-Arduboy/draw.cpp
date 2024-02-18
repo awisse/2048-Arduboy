@@ -23,7 +23,7 @@ void Text::DrawInt(uint16_t value, uint8_t x, uint8_t y, uint8_t colour) {
 
 void InitScreen() {
 
-  Platform::FillScreen(COLOUR_BLACK);
+  Platform::Clear();
 
   Text::DrawString(U8"Score", SCORE_X, SCORE_LINE * FONT_STEP);
   Text::DrawString(U8"HiSco", SCORE_X, HIGHSCORE_LINE * FONT_STEP);

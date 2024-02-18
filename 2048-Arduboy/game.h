@@ -27,6 +27,7 @@ void ResetGame();
 void SaveGame();
 void ExecuteMove(uint8_t direction);
 void ShowReward();
+void StopReward();
 void ResetHighScore();
 
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:ft=cpp

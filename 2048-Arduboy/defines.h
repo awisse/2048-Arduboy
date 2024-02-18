@@ -25,7 +25,7 @@
 #define FRAME_RATE 30
 #define FRAME_STEP U16(FRAME_RATE / 10)
 #define MAX_STARS 64
-#define STAR_DELAY 500
+#define REWARD_TIME 5000
 
 // Mathematical constants
 

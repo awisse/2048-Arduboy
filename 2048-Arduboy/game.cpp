@@ -14,10 +14,12 @@ GameStateStruct GameState;
 static int16_t flash;
 bool board_full;
 bool animating;
+uint32_t reward_start;
 
 SavedState LoadGame();
 void FlashLogic();
 void NewPiece();
+void StepReward();
 bool MoveTiles(uint8_t direction); // True if something moved
 void GameOver(bool winning);
 void BoardMask(uint16_t mask);
@@ -44,8 +46,9 @@ bool StepGame() {
   FlashLogic();
 
   if (animating) {
-    StepStars();
-    return true;
+    StepReward();
+  } else {
+      DrawGameState(GameState.running);
   }
 
   if (GameState.modified) {
@@ -63,8 +66,6 @@ bool StepGame() {
     ShowReward();
     reached = GameState.biggest;
   }
-
-  DrawGameState(GameState.running);
 
   // FIXME: Always true because of DrawGameState ...
   return true;
@@ -142,7 +143,23 @@ void ShowReward() {
   DrawReward(GameState.biggest, &rect);
   InitStars(&rect);
   animating = true;
+  reward_start = Platform::Millis();
+}
 
+void StepReward() {
+  if ((Platform::Millis() - reward_start) < REWARD_TIME) {
+    StepStars();
+  } else {
+    StopReward();
+  }
+}
+
+void StopReward() {
+  if (animating) {
+    animating = false;
+    GameState.modified = true;
+    InitScreen();
+  }
 }
 
 void SaveGame() {
@@ -368,5 +385,4 @@ SavedState CheckSignature(const char* signature, uint16_t offset) {
 
   return Saved;
 }
-
 // vim:ft=cpp:fdm=syntax

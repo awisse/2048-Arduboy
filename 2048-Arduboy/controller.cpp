@@ -28,6 +28,7 @@ void HandleEvent() {
     AButtonDown = true;
     startAPress = Platform::Millis();
     NewGame();
+    StopReward();
   }
 
   // Handle A-Button Up Event
