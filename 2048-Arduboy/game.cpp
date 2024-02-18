@@ -6,20 +6,20 @@ Helper functions to unclutter main .ino file
 #include "draw.h"
 #include "controller.h"
 #include "platform.h"
-
-#ifdef DEBUG
-#include "debug.h"
-#endif
+#include "stars.h"
 
 uint16_t board[DIM][DIM];
+uint16_t reached; // Highest rewarded value reached
 GameStateStruct GameState;
 static int16_t flash;
 bool board_full;
+bool animating;
 
-void NewGame();
+SavedState LoadGame();
+void FlashLogic();
+void NewPiece();
 bool MoveTiles(uint8_t direction); // True if something moved
 void GameOver(bool winning);
-void Reward();  
 void BoardMask(uint16_t mask);
 SavedState CheckSignature(const char* signature, uint16_t offset);
 
@@ -32,6 +32,7 @@ void InitGame() {
   }
 
   board_full = false;
+  animating = false;
 
   InitScreen();
   flash = 0;
@@ -39,14 +40,13 @@ void InitGame() {
 
 bool StepGame() {
 
-  if (GameState.moving) {
-    // Future animation
-    // No buttons accepted during move
-  } else {
-    HandleEvent();
-  }
-
+  HandleEvent();
   FlashLogic();
+
+  if (animating) {
+    StepStars();
+    return true;
+  }
 
   if (GameState.modified) {
     DrawMap(board);
@@ -58,8 +58,10 @@ bool StepGame() {
     GameState.saved = false;
   }
 
-  if (GameState.biggest >= (1 << MAX_VALUE)) {
-    GameOver(true);
+  if (((reached == 0) && (GameState.biggest >= (1 << TARGET_VALUE))) ||
+      ((reached > 0) && (GameState.biggest > reached))) {
+    ShowReward();
+    reached = GameState.biggest;
   }
 
   DrawGameState(GameState.running);
@@ -71,11 +73,13 @@ bool StepGame() {
 
 void NewGame() {
 
-  // Don't accidentally destroy a running game. Only 
+  // Don't accidentally destroy a running game. Only
   // start new game if game *NOT* running
   if (GameState.running) {
     return;
   }
+  animating = false;
+  reached = 0;
   InitScreen();
 
   BoardMask(0);
@@ -87,14 +91,26 @@ void NewGame() {
   GameState.moving = false;
   GameState.saved = true;
 
-  board_full = false; 
+  board_full = false;
 
   NewPiece();
   NewPiece();
 }
 
+void SavedGame() {
+  SavedState sstate = LoadGame();
+  if (sstate == Saved) {
+    // Possible message in the future
+    if (animating) {
+      InitScreen();
+      animating = false;
+    }
+  }
+}
+
 void ResetGame() {
   GameState.running = false;
+  animating = false;
   NewGame();
 }
 
@@ -114,14 +130,19 @@ void GameOver(bool winning) {
   GameState.running = false;
   SaveGame(); // Mainly to save highscore
   if (winning) {
-    Reward();
+    ShowReward();
   } else {
     DrawGameOver();
   }
 }
 
-void Reward() {
-  // TODO: Big Party !!
+void ShowReward() {
+  Rectangle rect;
+  Platform::Clear();
+  DrawReward(GameState.biggest, &rect);
+  InitStars(&rect);
+  animating = true;
+
 }
 
 void SaveGame() {
@@ -191,6 +212,9 @@ SavedState LoadGame() {
   if (highScore > GameState.highScore) {
     GameState.highScore = highScore;
   }
+  if (GameState.biggest >= (1 << TARGET_VALUE)) {
+    reached = GameState.biggest;
+  }
   return savedState;
 }
 
@@ -234,6 +258,10 @@ void ExecuteMove(uint8_t direction) {
   bool moved = MoveTiles(direction);
   if (moved) {
     NewPiece();
+    if (animating) {
+      InitScreen();
+      animating = false;
+    }
   } else if (board_full) {
     GameOver(false);
   }
@@ -287,7 +315,7 @@ bool MoveTiles(uint8_t direction) { // Universal move in all directions
           if (*Board(k,j)) {
             *Board(i,j) = *Board(k,j);
             *Board(k,j) = 0;
-            moved = true; 
+            moved = true;
             break;
           }
         }
@@ -308,7 +336,7 @@ bool MoveTiles(uint8_t direction) { // Universal move in all directions
       }
     }
   }
-  return moved; 
+  return moved;
 }
 
 void BoardMask(uint16_t mask) {
@@ -341,4 +369,4 @@ SavedState CheckSignature(const char* signature, uint16_t offset) {
   return Saved;
 }
 
-// vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab
+// vim:ft=cpp:fdm=syntax

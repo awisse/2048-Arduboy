@@ -33,14 +33,8 @@
 #define XPOS(x) ((x >> 3) & 0x7F)
 #define YPOS(x) ((x >> 10) & 0x3F)
 
-// Message Dimensions (Middle of the screen)
-#define MSG_X 40
-#define MSG_Y 24
-#define MSG_W 48
-#define MSG_H 16
-
 // Game maximal value: 1 << MAX_VALUE
-#define MAX_VALUE 0XD
+#define MAX_VALUE 0xD
 #define TARGET_VALUE 0xB
 
 // Probability (in %) of inserting 2 instead of 1 as a new piece

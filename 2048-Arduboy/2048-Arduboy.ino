@@ -59,6 +59,11 @@ void Platform::DrawBitmap(const uint8_t* bitmap,  int16_t x, int16_t y,
   arduboy.drawBitmap(x, y, bitmap, w, h, colour);
 }
 
+void Platform::DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
+                        uint8_t colour) {
+  arduboy.drawLine(x0, y0, x1, y1, colour);
+}
+
 void Platform::DrawRect(int16_t x, int16_t y, uint8_t w, uint8_t h,
                         uint8_t colour) {
   arduboy.drawRect(x, y, w, h, colour);
@@ -80,6 +85,10 @@ void Platform::DrawFilledCircle(int16_t x0, int16_t y0, uint8_t r,
 
 void Platform::FillScreen(uint8_t colour) {
   arduboy.fillScreen(colour);
+}
+
+void Platform::Clear() {
+  arduboy.clear();
 }
 
 #ifdef DEBUG

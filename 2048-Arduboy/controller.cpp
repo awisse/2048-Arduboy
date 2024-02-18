@@ -39,7 +39,7 @@ void HandleEvent() {
   // Handle A-Button long Press Event
   if (AButtonDown && (Platform::Millis() - startAPress) > LONG_PRESS) {
     startAPress = Platform::Millis();
-    LoadGame();
+    SavedGame();
   }
 
   // Handle B-Button Down Event
@@ -91,5 +91,4 @@ uint8_t DebouncedButtons() {
   pressed = true;
   return currentButtons;
 }
-
-// vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=cpp
+// vim:ft=cpp:fdm=syntax

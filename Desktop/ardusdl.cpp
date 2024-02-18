@@ -482,5 +482,4 @@ void cleanup() {
 
   SDL_Quit();
 }
-
-// vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=cpp
+// vim:ft=cpp:fdm=syntax

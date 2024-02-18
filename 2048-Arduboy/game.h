@@ -22,13 +22,11 @@ constexpr uint16_t eeprom_sz = 0x30;
 void InitGame();
 bool StepGame();
 void NewGame();
+void SavedGame();
 void ResetGame();
 void SaveGame();
-SavedState LoadGame();
-void FlashLogic();
-
-void NewPiece();
 void ExecuteMove(uint8_t direction);
+void ShowReward();
 void ResetHighScore();
 
 // vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:ft=cpp

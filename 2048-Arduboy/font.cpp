@@ -127,5 +127,5 @@ void Font::DrawChar(Coord* pos, uint8_t c, uint8_t colour) {
   Platform::DrawBitmap(fontPtr, pos->x, pos->y, glyphWidth, glyphHeight);
 }
 
-// vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab
+// vim:ft=cpp:fdm=syntax
 

@@ -4,6 +4,7 @@
 #include "draw.h"
 #include "platform.h"
 #include "hex-digits.h"
+#include "rewards.h"
 #include "utils.h"
 #include "font.h"
 
@@ -41,7 +42,7 @@ void DrawMap(uint16_t board[DIM][DIM]) {
   for (i = 0; i < PLACES; i++) {
     if ((value = board[i >> 2][i & 3])) {
       value &= 0x7FFF;
-      Platform::DrawBitmap(hex_digits[value], 32 + ((i << 2) & 0x30), 
+      Platform::DrawBitmap(hex_digits[value], 32 + ((i << 2) & 0x30),
           (i << 4) & 0x30, 16, 16, COLOUR_WHITE);
     }
   }
@@ -95,12 +96,35 @@ void DrawGameOver() {
   // EraseRect area
   EraseRect(rect_x, 8 * OVER_LINE - 4, rect_w, FONT_HEIGHT + 8);
   // Draw double border
-  Platform::DrawRect(rect_x, 8 * OVER_LINE - 4, rect_w, 
+  Platform::DrawRect(rect_x, 8 * OVER_LINE - 4, rect_w,
                      FONT_HEIGHT + 8);
-  Platform::DrawRect(rect_x - 1, 8 * OVER_LINE - 5, rect_w + 2, 
+  Platform::DrawRect(rect_x - 1, 8 * OVER_LINE - 5, rect_w + 2,
                      FONT_HEIGHT + 10);
   // Write "Game Over"
-  Text::DrawString(U8(gameoverstr), gameover_x, 
+  Text::DrawString(U8(gameoverstr), gameover_x,
                    OVER_LINE * FONT_HEIGHT + 1);
 }
-// vim: tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=cpp
+
+void DrawReward(uint16_t value, Rectangle* rect) {
+  uint16_t bit_offset;
+  uint16_t bit_width = sizeof(reward) / 2;
+
+  switch (value) {
+    case 2048:
+      bit_offset = 0;
+      break;
+    case 4096:
+      bit_offset = bit_width;
+      break;
+    default:
+      return;
+  }
+  rect->x = (DISPLAY_WIDTH - bit_width / 2) / 2;
+  rect->y = (DISPLAY_HEIGHT - 16) / 2;
+  rect->w = bit_width / 2;
+  rect->h = 16;
+
+  Platform::DrawBitmap(reward + bit_offset, rect->x, rect->y, rect->w, 16);
+
+}
+// vim:ft=cpp:fdm=syntax
